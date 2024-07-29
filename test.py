@@ -64,5 +64,18 @@ client = OpenAI(api_key=OPEN_API_KEY)
 #     print(i.content[0].text.value)
 #     print(i.id)
 
-message_ls = list(client.beta.threads.messages.list(thread_id))
-print(message_ls)
+# message_ls = list(client.beta.threads.messages.list(thread_id))
+# print(message_ls)
+
+runs = client.beta.threads.runs.list(
+  thread_id
+)
+
+for r in runs:
+    client.beta.threads.runs.cancel(
+        thread_id=thread_id,
+        run_id=r.id
+    )
+
+
+
