@@ -14,9 +14,9 @@ def get_chatbot_response(message_req):
     existed_messages = list(client.beta.threads.messages.list(thread_id))
     
     if '안녕' in message_req:
-        return "안녕하세요! HR 관련 질문이 있으신가요?"
+        yield "안녕하세요! HR 관련 질문이 있으신가요?"
     elif '급여' in message_req:
-        return "급여 관련 문의는 개인정보이므로 인사팀에 직접 문의해주시기 바랍니다."
+        yield "급여 관련 문의는 개인정보이므로 인사팀에 직접 문의해주시기 바랍니다."
     else:
         user_message_index = -1
 

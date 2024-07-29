@@ -70,9 +70,12 @@ body {
 .bot-message {
   background-color: #e9ecef;
   color: #343a40;
+  align-self: flex-end;
+  margin-right: auto;
 }
 
 .chat-input {
+  flex-grow: 1;
   display: flex;
   padding: 15px;
   border-top: 1px solid #e9ecef;
