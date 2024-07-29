@@ -15,19 +15,16 @@ def get_chatbot_response(message_req):
     
     if '안녕' in message_req:
         yield "안녕하세요! HR 관련 질문이 있으신가요?"
-    elif '급여' in message_req:
-        yield "급여 관련 문의는 개인정보이므로 인사팀에 직접 문의해주시기 바랍니다."
     else:
-        user_message_index = -1
+        try:
+            # for index, message in enumerate(existed_messages):
+            #     if message.role == "user" and message_req in message.content[0].text.value:
+            #         user_message_index = index
+            #         break
 
-        for index, message in enumerate(existed_messages):
-            if message.role == "user" and message_req in message.content[0].text.value:
-                user_message_index = index
-                break
-
-        if user_message_index > -1:
-            yield existed_messages[(user_message_index - 1)].content[0].text.value + "\n"
-        else:
+            # if user_message_index > -1:
+            #     yield existed_messages[(user_message_index - 1)].content[0].text.value + "\n"
+            # else:
             message = client.beta.threads.messages.create(
                 thread_id,
                 role="user",
@@ -44,3 +41,5 @@ def get_chatbot_response(message_req):
                     for content in event.data.delta.content:
                         if content.type == "text":
                             yield (content.text.value)
+        except Exception as e:
+            yield f"An error occurred: {str(e)}"

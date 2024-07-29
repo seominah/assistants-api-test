@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchMessageFromServer = (message) => {
+        const loadingMessage = displayMessage('bot', '로딩 중', true);
+        
         fetch('/api/chat', {
             method: 'POST',
             headers: {
@@ -31,6 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
             let messageElement = null;
 
             return reader.read().then(function processText({ done, value }) {
+                let roadingDiv = document.getElementById('roading');
+                if (roadingDiv) {
+                    roadingDiv.remove();
+                }
                 if (done) {
                     if (messageElement) {
                         messageElement.innerHTML += buffer.replace(/\n/g, '<br>');
@@ -50,22 +56,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 span.innerHTML = buffer.replace(/\n/g, '<br>');
                 messageElement.appendChild(span);
                 
-
                 buffer = '';
 
                 return reader.read().then(processText);
             });
         })
         .catch(error => {
+            loadingMessage.innerHTML = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
             console.error('Error:', error);
         });
     };
 
-    const displayMessage = (sender, message) => {
+    const displayMessage = (sender, message, plag) => {
         const messageElement = document.createElement('div');
         messageElement.classList.add('message', `${sender}-message`);
         messageElement.innerHTML = message.replace(/\n/g, '<br>');
+        if (plag) {
+            messageElement.id = "roading"
+        } 
         chatMessages.appendChild(messageElement);
+        // chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
+        console.log(messageElement);
         return messageElement;
     };
 
