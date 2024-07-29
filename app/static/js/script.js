@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         displayMessage('bot', buffer);
                     }
-                    scrollToBottom();
                     return;
                 }
 
@@ -47,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 span.innerHTML = buffer.replace(/\n/g, '<br>');
                 messageElement.appendChild(span);
                 
-                requestAnimationFrame(scrollToBottom);
 
                 buffer = '';
 
@@ -64,15 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageElement.classList.add('message', `${sender}-message`);
         messageElement.innerHTML = message.replace(/\n/g, '<br>');
         chatMessages.appendChild(messageElement);
-        requestAnimationFrame(scrollToBottom);
         return messageElement;
-    };
-
-    const scrollToBottom = () => {
-        const lastMessage = chatMessages.lastElementChild;
-        if (lastMessage) {
-            lastMessage.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
     };
 
     sendButton.addEventListener('click', sendMessage);
