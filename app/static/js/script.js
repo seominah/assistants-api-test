@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.body) {
                 throw new Error('응답이 없습니다. 잠시 후 다시 시도해주세요.');
             }
-
+            console.error('Error!!!!!:', response);
             const reader = response.body.getReader();
             const decoder = new TextDecoder('utf-8');
             let buffer = '';
