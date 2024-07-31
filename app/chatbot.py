@@ -73,7 +73,12 @@ def get_chatbot_response(message_req):
                 elif event.event == "thread.run.step.failed":
                     Exception(event.data.last_error.code+" : "+event.data.last_error.message)
 
+            print("---------GPT 답변------------")
             print(stream_all)   
+            print("----------------------------")
+
+            if not stream_all.strip(): # 빈 문자열일 경우
+                    yield "죄송합니다. 응답을 가져오는 데 실패했습니다. 다시 시도해 주세요."
 
             # 토큰 수 계산
             # output_tokens = count_tokens(client, "assistant", stream_all, model=model_id)
