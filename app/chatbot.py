@@ -1,30 +1,37 @@
 import json
+import re
 from time import time
 from flask import current_app
 from openai import OpenAI
 
-def get_chatbot_response(message_req):
+def open_ai():
     api_key = current_app.config['OPEN_API_KEY']
     client = OpenAI(api_key=api_key)
+    return client
+
+def create_thread():
+    client = open_ai()
+    thread = client.beta.threads.create()
+    print("쓰레디 아이디!! 0번" + thread.id)
+    return thread.id
+
+def get_thread_message(thread_id):
+    client = open_ai()
+    messages = client.beta.threads.messages.list(thread_id=thread_id)
+    return messages
+
+def get_chatbot_response(message_req, thread_id):
+    client = open_ai()
     assistant_id = current_app.config['ASSISTANTS_ID']
-    thread_id = current_app.config['THREAD_ID']
-    message_id="msg_2wtmI2da7pQsUbRAeHqGjbTW"
-    run_id="run_irfQeNOrbdOEhdw445LWzY6b"
 
     existed_messages = list(client.beta.threads.messages.list(thread_id))
+
+    print("쓰레디 아이디!! 2번" + thread_id)
     
     if '안녕' in message_req:
         yield "안녕하세요! HR 관련 질문이 있으신가요?"
     else:
         try:
-            # for index, message in enumerate(existed_messages):
-            #     if message.role == "user" and message_req in message.content[0].text.value:
-            #         user_message_index = index
-            #         break
-
-            # if user_message_index > -1:
-            #     yield existed_messages[(user_message_index - 1)].content[0].text.value + "\n"
-            # else:
             message = client.beta.threads.messages.create(
                 thread_id,
                 role="user",
