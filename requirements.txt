@@ -3,4 +3,4 @@ openai
 flask
 flask-cors
 bootstrap-flask
-flask-session
+Flask-Session
