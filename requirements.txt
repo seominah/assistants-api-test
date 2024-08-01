@@ -2,4 +2,5 @@ python-dotenv
 openai
 flask
 flask-cors
-dotenv
+bootstrap-flask
+Flask-Session
