@@ -4,22 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HR 챗봇 어시스턴트</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h1>HansolPNS HR BOT</h1>
+    <div id="session-info" data-session-id="{{ session_id }}"></div>
+    <div class="container-fluid d-flex">
+        <div class="col-md-3 p-0">
+            <div class="card">
+                <div class="list-group" id="chat-list">
+                    <button type="button" class="list-group-item list-group-item-action" id="newChat">
+                        <i class="fas fa-plus mr-2"></i> 새로운 대화 시작하기
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="chat-messages" id="chatMessages">
-            <div class="message bot-message">안녕하세요! HR 관련 질문이 있으시면 언제든 물어보세요.</div>
-        </div>
-        <div class="chat-input">
-            <input type="text" id="userInput" placeholder="질문을 입력하세요...">
-            <button id="sendButton">전송</button>
+        <div class="col-md-9 p-0 chat-container">
+            <div class="card h-100">
+                <div class="card-header">
+                    <span>HansolPNS HR BOT</span>
+                </div>
+                <div class="card-body" id="chatMessagesContainer">
+                    <!-- Chat messages will appear here -->
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="userInput" placeholder="질문을 입력하세요...">
+                    <button id="sendButton">전송</button>
+                </div>
+            </div>
         </div>
     </div>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
