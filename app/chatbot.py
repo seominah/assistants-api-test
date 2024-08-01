@@ -40,8 +40,7 @@ def get_chatbot_response(message_req, thread_id):
         stream = client.beta.threads.runs.create(
             thread_id=thread_id,
             assistant_id=assistant_id,
-            stream=True,
-            instructions="Please omit the use of asterisks (**) and citation information in the answers. you have to remove like that 【】."
+            stream=True
         )
 
         stream_all = ""
