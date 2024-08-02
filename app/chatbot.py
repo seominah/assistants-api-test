@@ -55,7 +55,6 @@ def get_chatbot_response(message_req, thread_id):
             if event.data.object == "thread.message.delta":
                 for content in event.data.delta.content:
                     if content.type == "text":
-                        print(content.text.value)
                         stream_all += content.text.value
                         yield (content.text.value)
             elif event.event == "thread.run.step.completed":

@@ -91,10 +91,12 @@ body {
   .chat-container {
       height: 100vh;
       border-radius: 0;
+      overflow-y: auto;
   }
 
   .chat-messages {
       height: calc(100vh - 130px);
+      overflow-y: auto;
   }
 
   .chat-header h1 {

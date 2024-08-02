@@ -117,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 `;
 
+                scrollToBottom(); // 메시지 추가 후 스크롤을 아래로 이동
                 return reader.read().then(processText);
             });
         })
@@ -124,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingMessage.innerHTML = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
             console.error('Error:', error);
         });
-    };
+    };    
 
     const displayMessage = (sender, message, threadId, isLoading = false) => {
         const chatMessages = document.getElementById(`chat-messages-${threadId}`);
@@ -158,7 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
             messageElement.id = "roading";
         }
         chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // 스크롤을 최하단으로 이동
+        scrollToBottom();
         return messageElement;
     };
 
@@ -198,5 +201,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize the first chat
     startNewChat();
 });
+
+function scrollToBottom() {
+    const chatMessagesContainer = document.getElementById('chatMessagesContainer');
+    chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+    console.log(`Scroll to bottom: scrollHeight = ${chatMessagesContainer.scrollHeight}, scrollTop = ${chatMessagesContainer.scrollTop}`);
+}
 
 console.log('Script loaded');
