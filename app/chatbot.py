@@ -26,16 +26,9 @@ def get_thread_message(thread_id):
 def get_chatbot_response(message_req, thread_id):
     client = open_ai()
     assistant_id = current_app.config['ASSISTANTS_ID']
-    thread_id = current_app.config['THREAD_ID']
-    max_tokens = int(current_app.config['MAX_TOKENS']) # 환경 변수에서 가져온 문자열을 정수로 변환
-    message_id="msg_2wtmI2da7pQsUbRAeHqGjbTW"
-    run_id="run_irfQeNOrbdOEhdw445LWzY6b"
-    model_id = client.beta.assistants.retrieve(assistant_id).model
-    
-    max_tokens = int(current_app.config['MAX_TOKENS']) # 환경 변수에서 가져온 문자열을 정수로 변환
-    model_id = client.beta.assistants.retrieve(assistant_id).model
 
-    existed_messages = list(client.beta.threads.messages.list(thread_id))
+    max_tokens = int(current_app.config['MAX_TOKENS']) # 환경 변수에서 가져온 문자열을 정수로 변환
+    model_id = client.beta.assistants.retrieve(assistant_id).model
 
     print("쓰레디 아이디!! 2번" + thread_id)
     
