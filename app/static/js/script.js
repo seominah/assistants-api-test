@@ -88,13 +88,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (messageElement) {
                         messageElement.innerHTML = `
                         <div class="d-flex">
-                            <img src="https://via.placeholder.com/40" class="align-self-start mr-2" alt="...">
+                            <img src="static/image/logo_test.png" class="align-self-start mr-2" style="width: 40px;">
                             <div class="media-body text-left">
                                 <p class="mb-1 message-bubble bot-bubble">${buffer.replace(/\n/g, '<br>')}</p>
                                 <p class="text-muted small">${new Date().toLocaleTimeString()} | ${new Date().toLocaleDateString()}</p>
                             </div>
                         </div>
-                        `;
+                        `;0
                     } else {
                         displayMessage('bot', buffer, threadId);
                     }
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 messageElement.innerHTML = `
                 <div class="d-flex">
-                    <img src="https://via.placeholder.com/40" class="align-self-start" alt="...">
+                    <img src="static/image/logo_test.png" class="align-self-start" style="width: 40px;">
                     <div class="media-body text-left">
                         <p class="mb-1 message-bubble bot-bubble">${buffer.replace(/\n/g, '<br>')}</p>
                         <p class="text-muted small">${new Date().toLocaleTimeString()} | ${new Date().toLocaleDateString()}</p>
@@ -140,13 +140,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p class="mb-1 message-bubble user-bubble">${message}</p>
                     <p class="text-muted small">${new Date().toLocaleTimeString()} | ${new Date().toLocaleDateString()}</p>
                 </div>
-                <img src="https://via.placeholder.com/40" class="align-self-start ml-2" alt="...">
             </div>
             `;
         } else {
             messageElement.innerHTML = `
             <div class="d-flex">
-                <img src="https://via.placeholder.com/40" class="align-self-start mr-2" alt="...">
+                <img src="static/image/logo_test.png" class="align-self-start mr-2" style="width: 40px;">
                 <div class="media-body text-left">
                     <p class="mb-1 message-bubble bot-bubble">${message}</p>
                     <p class="text-muted small">${new Date().toLocaleTimeString()} | ${new Date().toLocaleDateString()}</p>
