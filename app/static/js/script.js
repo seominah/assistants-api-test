@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatMessagesContainer = document.getElementById('chatMessagesContainer');
     const userInput = document.getElementById('userInput');
     const sendButton = document.getElementById('sendButton');
+    const deleteButton = document.getElementById('deleteButton');
     const chatList = document.getElementById('chat-list');
 
     if (!chatMessagesContainer || !userInput || !sendButton || !chatList) {
@@ -17,20 +18,61 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/thread/new');
             const data = await response.json();
             const newThreadId = data.thread_id;
-
+    
             const newChatItem = document.createElement('a');
             newChatItem.href = "#";
             newChatItem.className = "list-group-item list-group-item-action";
             newChatItem.setAttribute('data-thread-id', newThreadId);
             newChatItem.innerHTML = `
-                <p class="mb-1">안녕하세요! HR 관련 질문이 있으시면 언제든 물어보세요.</p>
+                <div class="d-flex">
+                    <div class="mt-2">안녕하세요! HR 관련 질문이 있으시면 언제든 물어보세요.</div>
+                    <button class="delete-button ml-2 btn btn-link"> X </button>
+                </div>
             `;
+    
+            const deleteButton = newChatItem.querySelector('.delete-button');
+            deleteButton.addEventListener('click', async (e) => {
+                e.preventDefault(); 
+                e.stopPropagation();
+
+                const confirmDelete = confirm('이 채팅 스레드를 삭제하시겠습니까?');
+                if (!confirmDelete) return;
+
+                try {
+                    const deleteResponse = await fetch(`/api/chat/delete`, { 
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ newThreadId }),  
+                    });
+
+                    if (!deleteResponse.ok) {
+                        const errorText = await deleteResponse.text();
+                        throw new Error(`Failed to delete thread: ${errorText}`);
+                    } else {                
+                        const chatMessages = document.getElementById(`chat-messages-${newThreadId}`);
+                        if (chatMessages) {
+                            chatMessages.remove();
+                            console.log(`Messages for thread ${newThreadId} deleted successfully.`);
+                        }
+                        
+                        newChatItem.remove(); 
+                        console.log(`Thread ${newThreadId} deleted successfully.`);
+                    }
+
+                } catch (error) {
+                    console.error('Error while deleting the thread:', error);
+                }
+            });
+    
             newChatItem.addEventListener('click', (e) => {
                 e.preventDefault();
                 loadThread(newThreadId);
             });
+    
             chatList.appendChild(newChatItem);
-
+    
             createChatMessages(newThreadId);
             switchToThread(newThreadId);
         } catch (error) {

@@ -16,6 +16,12 @@ def create_thread():
     print("쓰레디 아이디!! 0번" + thread.id)
     return thread.id
 
+def delete_thread(thread_id):
+    client = open_ai()
+    response = client.beta.threads.delete(thread_id)
+    print(response)
+    return response.deleted
+
 def get_thread_message(thread_id):
     client = open_ai()
     messages = client.beta.threads.messages.list(thread_id=thread_id)

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, Response, stream_with_context, session, jsonify
-from app.chatbot import get_chatbot_response, create_thread, get_thread_message
+from app.chatbot import get_chatbot_response, create_thread, get_thread_message, delete_thread
 from uuid import uuid4
 
 bp = Blueprint('routes', __name__)
@@ -22,6 +22,12 @@ def index():
         thread_id = create_thread()
         session["thread_id"] = thread_id
         return render_template('index.html', session_id=session_id, thread_id=thread_id, messages=[])
+
+@bp.route('/api/chat/delete', methods=['POST'])
+def delete_chat():
+    thread_id = request.json['newThreadId']
+    print(thread_id)
+    return jsonify({'thread_id': delete_thread(thread_id)})
 
 
 @bp.route('/api/thread/new')
