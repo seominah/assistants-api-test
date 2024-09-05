@@ -7,7 +7,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="session-info" data-session-id="{{ session_id }}"></div>
@@ -24,13 +24,13 @@
         <div class="col-md-9 p-0 chat-container">
             <div class="card h-100">
                 <div class="card-header">
-                    <span>HansolPNS HR BOT</span>
+                    <span style="font-size: 15px;">HansolPNS HR BOT</span>
                 </div>
                 <div class="card-body" id="chatMessagesContainer">
                     <!-- Chat messages will appear here -->
                 </div>
                 <div class="chat-input">
-                    <input type="text" id="userInput" placeholder="질문을 입력하세요...">
+                    <input type="text" id="userInput" autofocus placeholder="질문을 입력하세요.">
                     <button id="sendButton">전송</button>
                 </div>
             </div>

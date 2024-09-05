@@ -28,9 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
             newChatItem.className = "list-group-item list-group-item-action";
             newChatItem.setAttribute('data-thread-id', newThreadId);
             newChatItem.innerHTML = `
-                <div class="d-flex">
-                    <div class="mt-2">${chatTitle}</div>
-                    <button class="delete-button ml-2 btn btn-link"> X </button>
+                <div class="d-flex chat-box">
+                    <div class="chat-title">${chatTitle}</div>
+                    <i class="fas fa-times delete-button"></i>
                 </div>
             `;
     
