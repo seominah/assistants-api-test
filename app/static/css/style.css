@@ -56,6 +56,12 @@ body {
   background-color: #f8f9fa;
 }
 
+.chat-logo {
+  width: 40px;
+  height: 40px;
+  border: solid 5px #0D588D;
+}
+
 .chat-input {
   flex-grow: 1;
   display: flex;

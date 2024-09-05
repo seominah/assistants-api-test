@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     let threadId = null;
     let sessionId = document.getElementById('session-info')?.getAttribute('data-session-id');
+    let chatIndex = 1; // Initialize the chat index
 
     const chatMessagesContainer = document.getElementById('chatMessagesContainer');
     const userInput = document.getElementById('userInput');
@@ -18,14 +19,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/thread/new');
             const data = await response.json();
             const newThreadId = data.thread_id;
-    
+            
+            // Increment the chat index and update the title
+            const chatTitle = `Hansol HR BOT${chatIndex++}`;
+
             const newChatItem = document.createElement('a');
             newChatItem.href = "#";
             newChatItem.className = "list-group-item list-group-item-action";
             newChatItem.setAttribute('data-thread-id', newThreadId);
             newChatItem.innerHTML = `
                 <div class="d-flex">
-                    <div class="mt-2">안녕하세요! HR 관련 질문이 있으시면 언제든 물어보세요.</div>
+                    <div class="mt-2">${chatTitle}</div>
                     <button class="delete-button ml-2 btn btn-link"> X </button>
                 </div>
             `;
@@ -130,13 +134,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (messageElement) {
                         messageElement.innerHTML = `
                         <div class="d-flex">
-                            <img src="static/image/logo_test.png" class="align-self-start mr-2" style="width: 40px;">
+                            <img src="static/image/logo_test.png" class="align-self-start mr-2 chat-logo">
                             <div class="media-body text-left">
                                 <p class="mb-1 message-bubble bot-bubble">${buffer.replace(/\n/g, '<br>')}</p>
                                 <p class="text-muted small">${new Date().toLocaleTimeString()} | ${new Date().toLocaleDateString()}</p>
                             </div>
                         </div>
-                        `;0
+                        `;
                     } else {
                         displayMessage('bot', buffer, threadId);
                     }
@@ -151,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 messageElement.innerHTML = `
                 <div class="d-flex">
-                    <img src="static/image/logo_test.png" class="align-self-start" style="width: 40px;">
+                    <img src="static/image/logo_test.png" class="align-self-start mr-2 chat-logo">
                     <div class="media-body text-left">
                         <p class="mb-1 message-bubble bot-bubble">${buffer.replace(/\n/g, '<br>')}</p>
                         <p class="text-muted small">${new Date().toLocaleTimeString()} | ${new Date().toLocaleDateString()}</p>
@@ -188,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             messageElement.innerHTML = `
             <div class="d-flex">
-                <img src="static/image/logo_test.png" class="align-self-start mr-2" style="width: 40px;">
+                <img src="static/image/logo_test.png" class="align-self-start mr-2 chat-logo">
                 <div class="media-body text-left">
                     <p class="mb-1 message-bubble bot-bubble">${message}</p>
                     <p class="text-muted small">${new Date().toLocaleTimeString()} | ${new Date().toLocaleDateString()}</p>
