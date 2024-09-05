@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             newChatItem.setAttribute('data-thread-id', newThreadId);
             newChatItem.innerHTML = `
                 <div class="d-flex chat-box">
-                    <div class="chat-title">${chatTitle}</div>
+                    <div class="chat-title ${newThreadId}">${chatTitle}</div>
                     <i class="fas fa-times delete-button"></i>
                 </div>
             `;
@@ -111,6 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchMessageFromServer(message, threadId);
             userInput.value = '';
         }
+
+        const chatTitle = document.querySelector('.' + threadId)
+        let title = message
+
+        if (title.length > 15)
+            title = title.slice(0, 15) + '...'
+
+        chatTitle.textContent = title
     };
 
     const fetchMessageFromServer = (message, threadId) => {
