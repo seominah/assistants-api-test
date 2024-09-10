@@ -11,31 +11,59 @@
 </head>
 <body>
     <div id="session-info" data-session-id="{{ session_id }}"></div>
+
     <div class="container-fluid d-flex">
-        <div class="col-md-3 p-0">
+
+        <!-- Left Chat List -->
+        <div class="col-md-3 p-0 sidebar">
             <div class="card">
-                <div class="list-group" id="chat-list">
-                    <button type="button" class="list-group-item list-group-item-action" id="newChat">
-                        <i class="fas fa-plus mr-2"></i> 새로운 대화 시작하기
+                <!-- 상단 버튼 컨테이너 -->
+                <div class="button-container d-flex justify-content-between align-items-center">
+                    <!-- 햄버거 버튼 -->
+                    <button id="toggleMenuButton" class="btn btn-light">
+                        <i class="fas fa-bars"></i>
                     </button>
+                    <!-- 새로운 대화 시작하기 버튼 -->
+                    <button type="button" class="btn btn-light" id="newChat">
+                        <i class="fas fa-plus"></i> 새로운 대화
+                    </button>
+                </div>
+                <div class="list-group" id="chat-list">
+                    <!-- <button type="button" class="list-group-item list-group-item-action" id="newChat">
+                        <i class="fas fa-plus mr-2"></i> 새로운 대화 시작하기
+                    </button> -->
+                    <!-- 대화 목록이 이곳에 추가됩니다 -->
                 </div>
             </div>
         </div>
-        <div class="col-md-9 p-0 chat-container">
+            
+        <!-- Right Chat Messages -->
+        <div class="p-0 chat-container">
             <div class="card h-100">
-                <div class="card-header">
-                    <span style="font-size: 15px;">HansolPNS HR BOT</span>
+                <div class="card-header d-flex justify-content-start align-items-center">
+                    <!-- 대화창 내부의 햄버거 버튼 (초기에는 숨겨짐) -->
+                    <button id="toggleMenuButtonInChat" class="btn btn-primary d-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <!-- 챗봇 타이틀 -->
+                    <span style="font-size: 15px;">HansolPNS HR 챗봇</span>
                 </div>
                 <div class="card-body" id="chatMessagesContainer">
                     <!-- Chat messages will appear here -->
                 </div>
                 <div class="chat-input">
-                    <input type="text" id="userInput" autofocus placeholder="질문을 입력하세요.">
+                    <textarea type="text" id="userInput" autofocus placeholder="줄바꿈 Shift + Enter / 입력 Enter 입니다."></textarea>
                     <button id="sendButton">전송</button>
                 </div>
             </div>
         </div>
     </div>
+    
+    <footer class="footer fixed-bottom">
+        <p class="version-info">Version 1.0.0</p>
+    </footer>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
