@@ -138,8 +138,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // '\n'을 '<br>'로 대체 (줄바꿈 표현)
             const formattedMessage = userInput.value.replace(/\n/g, '<br>');
             displayMessage('user', formattedMessage, threadId);
+
+            // 입력 필드와 버튼 비활성화
+            disableInputs();
+
             fetchMessageFromServer(message, threadId);
-            userInput.value = '';
         }
 
         const chatTitle = document.querySelector('.' + threadId)
@@ -152,7 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchMessageFromServer = (message, threadId) => {
-        const loadingMessage = displayMessage('bot', '로딩 중', threadId, true);
+        //const loadingMessage = displayMessage('bot', '로딩 중', threadId, true);
+        const loadingMessage = displayLoadingMessage(threadId);
 
         fetch('/api/chat', {
             method: 'POST',
@@ -182,6 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         displayMessage('bot', buffer, threadId);
                     }
+
+                    // 응답이 완료된 후 입력 필드와 버튼을 활성화
+                    enableInputs();
                     return;
                 }
 
@@ -208,6 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => {
             loadingMessage.innerHTML = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
             console.error('Error:', error);
+
+            // 에러 발생 시에도 입력 필드와 버튼을 활성화
+            enableInputs();
         });
     };    
 
@@ -286,10 +296,56 @@ document.addEventListener('DOMContentLoaded', () => {
     startNewChat();
 });
 
+// 스크롤 하단 이동 함수
 function scrollToBottom() {
     const chatMessagesContainer = document.getElementById('chatMessagesContainer');
     chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
     console.log(`Scroll to bottom: scrollHeight = ${chatMessagesContainer.scrollHeight}, scrollTop = ${chatMessagesContainer.scrollTop}`);
 }
+
+// 입력 필드와 버튼 비활성화 함수
+function disableInputs() {
+    sendButton.disabled = true;
+    sendButton.style.backgroundColor = 'grey'; // 비활성화 시 회색으로
+    sendButton.style.cursor = 'not-allowed'; // 커서를 사용 불가로 변경
+
+    userInput.disabled = true; // 입력 필드 비활성화
+    userInput.style.backgroundColor = '#e9ecef'; // 비활성화 시 배경색
+}
+
+// 입력 필드와 버튼 활성화 함수
+function enableInputs() {    
+    userInput.value = '';
+    sendButton.disabled = false;
+    sendButton.style.backgroundColor = '#3465A7'; // 활성화 시 원래 색상으로
+    sendButton.style.cursor = 'pointer'; // 커서를 기본 상태로 변경
+
+    userInput.disabled = false; // 입력 필드 활성화
+    userInput.style.backgroundColor = '#ffffff'; // 활성화 시 원래 배경색
+    
+    userInput.focus();
+}
+
+// 로딩 메시지를 GIF 이미지로 표현
+const displayLoadingMessage = (threadId) => {
+    const chatMessages = document.getElementById(`chat-messages-${threadId}`);
+    if (!chatMessages) return null;
+
+    const loadingElement = document.createElement('div');
+    loadingElement.classList.add('message', 'bot-message');
+
+    // 로딩 중인 GIF 이미지 추가
+    loadingElement.innerHTML = `
+    <div class="d-flex">
+        <img src="static/image/loading_document.gif" class="align-self-start mr-2" alt="Loading...">
+        <div class="media-body text-left">
+        </div>
+    </div>
+    `;
+
+    chatMessages.appendChild(loadingElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return loadingElement;
+};
 
 console.log('Script loaded');
