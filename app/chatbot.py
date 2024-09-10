@@ -56,7 +56,6 @@ def get_chatbot_response(message_req, thread_id):
         # input_tokens = count_tokens(client, "user", message_req, model=model_id)
         # print(f"Input text token count: {input_tokens.total_tokens}")       
 
-
         for event in stream:
             if event.data.object == "thread.message.delta":
                 for content in event.data.delta.content:

@@ -9,10 +9,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteButton = document.getElementById('deleteButton');
     const chatList = document.getElementById('chat-list');
 
+    // 햄버거 버튼 메뉴로 대화 목록 숨기기/펼치기 UI 변경
+    const toggleMenuButton = document.getElementById('toggleMenuButton');
+    const toggleMenuButtonInChat = document.getElementById('toggleMenuButtonInChat');
+    const newChatButton = document.getElementById('newChat');
+    const body = document.body; // 전체 body 요소 가져오기
+
     if (!chatMessagesContainer || !userInput || !sendButton || !chatList) {
         console.error('Required DOM elements are missing.');
         return;
     }
+
+    toggleMenuButton.addEventListener('click', () => {
+        // 'hide-list' 클래스를 토글하여 사이드바 숨김/보이기
+        console.log('햄버거 버튼 클릭됨');
+        body.classList.toggle('hide-list');
+        toggleMenuButtonInChat.classList.toggle('d-none'); // 대화창 내부 버튼 표시
+    });
+
+    toggleMenuButtonInChat.addEventListener('click', () => {
+        console.log("대화창 내 햄버거 버튼 클릭됨");
+        body.classList.toggle('hide-list');
+        toggleMenuButtonInChat.classList.toggle('d-none');  // 내부 버튼을 숨김
+        
+    });
+
+    newChatButton.addEventListener('click', () => {
+        // 새로운 대화 시작하기 기능 구현
+        console.log('새로운 대화 시작하기 버튼 클릭됨');
+        // 필요한 기능 구현 추가
+        startNewChat();
+    });
 
     const startNewChat = async () => {
         try {
@@ -106,8 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const sendMessage = () => {
         const message = userInput.value.trim();
+        
         if (message) {
-            displayMessage('user', message, threadId);
+            // '\n'을 '<br>'로 대체 (줄바꿈 표현)
+            const formattedMessage = userInput.value.replace(/\n/g, '<br>');
+            displayMessage('user', formattedMessage, threadId);
             fetchMessageFromServer(message, threadId);
             userInput.value = '';
         }
@@ -246,8 +276,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sendButton.addEventListener('click', sendMessage);
     userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            sendMessage();
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // 기본 Enter 키의 줄바꿈을 막습니다.
+            sendMessage(); // 메시지를 전송합니다.
         }
     });
 
