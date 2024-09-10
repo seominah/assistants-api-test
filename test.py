@@ -93,7 +93,4 @@ client = OpenAI(api_key=OPEN_API_KEY)
 #     )
 
 
-
-client.beta.assistants.update(
-    
-)
+# 5. 벡터 스토리지
