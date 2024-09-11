@@ -8,3 +8,4 @@ class Config:
     ASSISTANTS_ID = os.environ.get('ASSISTANTS_ID')
     THREAD_ID = os.environ.get('THREAD_ID')
     MAX_TOKENS = os.environ.get('MAX_TOKENS')
+    VECTOR_STORE_NAME = os.environ.get('VECTOR_STORE_NAME')
