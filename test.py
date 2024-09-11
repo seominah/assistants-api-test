@@ -10,6 +10,7 @@ assistant_id=os.environ['ASSISTANTS_ID']
 thread_id=os.environ['THREAD_ID']
 message_id="msg_2wtmI2da7pQsUbRAeHqGjbTW"
 run_id="run_irfQeNOrbdOEhdw445LWzY6b"
+VECTOR_STORE_NAME=os.environ['VECTOR_STORE_NAME']
 
 client = OpenAI(api_key=OPEN_API_KEY)
 # 1. 어시스턴트 생성
@@ -94,6 +95,27 @@ client = OpenAI(api_key=OPEN_API_KEY)
 
 
 
-client.beta.assistants.update(
+# client.beta.assistants.update(
     
-)
+# )
+
+# vector_stores = client.beta.vector_stores.list()
+# # print(vector_stores)
+
+# for vs in vector_stores:
+#     if vs.name == VECTOR_STORE_NAME:
+#         print("vector_store_id: ", vs.id)
+#         vector_store_id = vs.id
+
+
+# vector_store_files = client.beta.vector_stores.files.list(
+#     vector_store_id=vector_store_id
+# )
+# for vs_f in vector_store_files:
+#     # print("file_id: ", vs_f.id)
+# # print(vector_store_files)
+
+files = client.files.list()
+for f in files:
+    print(f.id)
+    print(f.filename)
