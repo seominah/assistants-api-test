@@ -145,13 +145,13 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchMessageFromServer(message, threadId);
         }
 
-        const chatTitle = document.querySelector('.' + threadId)
-        let title = message
+        // const chatTitle = document.querySelector('.' + threadId)
+        // let title = message
 
-        if (title.length > 15)
-            title = title.slice(0, 15) + '...'
+        // if (title.length > 15)
+        //     title = title.slice(0, 15) + '...'
 
-        chatTitle.textContent = title
+        // chatTitle.textContent = title
     };
 
     const fetchMessageFromServer = (message, threadId) => {
@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // 응답이 완료된 후 입력 필드와 버튼을 활성화
                     enableInputs();
+                    fetchChatTitle();
                     return;
                 }
 
@@ -220,6 +221,32 @@ document.addEventListener('DOMContentLoaded', () => {
             enableInputs();
         });
     };    
+
+    // API 호출하여 채팅방 타이틀을 가져오는 함수
+    const fetchChatTitle = async () => {
+        try {
+            const response = await fetch('/api/chat-title'); // Flask API 엔드포인트 호출
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json(); // JSON 응답 파싱
+            const chatTitle = data.chat_title; // 타이틀 추출
+            console.log('채팅방 타이틀:', chatTitle);
+            
+            // 채팅방 타이틀을 강제로 지정
+            setChatTitle(chatTitle);
+        } catch (error) {
+            console.error('Error fetching chat title:', error);
+        }
+    };
+
+    // 채팅방 타이틀을 설정하는 함수
+    const setChatTitle = (title) => {
+        const chatTitleElement = document.querySelector('.' + threadId)
+        if (chatTitleElement) {
+            chatTitleElement.textContent = title; // 타이틀 설정
+        }
+    };
 
     const displayMessage = (sender, message, threadId, isLoading = false) => {
         const chatMessages = document.getElementById(`chat-messages-${threadId}`);
