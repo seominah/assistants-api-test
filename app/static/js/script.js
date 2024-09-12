@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const chatMessagesContainer = document.getElementById('chatMessagesContainer');
     const userInput = document.getElementById('userInput');
+    const chatInput = document.getElementById('chatInput');
     const sendButton = document.getElementById('sendButton');
     const deleteButton = document.getElementById('deleteButton');
     const chatList = document.getElementById('chat-list');
@@ -244,7 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const setChatTitle = (title) => {
         const chatTitleElement = document.querySelector('.' + threadId)
         if (chatTitleElement) {
-            chatTitleElement.textContent = title; // 타이틀 설정
+            if(title)
+                chatTitleElement.textContent = title; // 타이틀 설정
         }
     };
 
@@ -327,16 +329,17 @@ document.addEventListener('DOMContentLoaded', () => {
 function scrollToBottom() {
     const chatMessagesContainer = document.getElementById('chatMessagesContainer');
     chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
-    console.log(`Scroll to bottom: scrollHeight = ${chatMessagesContainer.scrollHeight}, scrollTop = ${chatMessagesContainer.scrollTop}`);
+    // console.log(`Scroll to bottom: scrollHeight = ${chatMessagesContainer.scrollHeight}, scrollTop = ${chatMessagesContainer.scrollTop}`);
 }
 
 // 입력 필드와 버튼 비활성화 함수
 function disableInputs() {
     sendButton.disabled = true;
-    sendButton.style.backgroundColor = 'grey'; // 비활성화 시 회색으로
+    sendButton.classList.add('disabled-button'); // 비활성화 스타일 클래스를 추가
     sendButton.style.cursor = 'not-allowed'; // 커서를 사용 불가로 변경
 
     userInput.disabled = true; // 입력 필드 비활성화
+    chatInput.style.backgroundColor = '#e9ecef'; // 비활성화 시 배경색
     userInput.style.backgroundColor = '#e9ecef'; // 비활성화 시 배경색
 }
 
@@ -344,11 +347,15 @@ function disableInputs() {
 function enableInputs() {    
     userInput.value = '';
     sendButton.disabled = false;
-    sendButton.style.backgroundColor = '#3465A7'; // 활성화 시 원래 색상으로
+    sendButton.classList.remove('disabled-button'); // 비활성화 스타일 클래스를 제거
     sendButton.style.cursor = 'pointer'; // 커서를 기본 상태로 변경
 
     userInput.disabled = false; // 입력 필드 활성화
+    chatInput.style.backgroundColor = '#ffffff'; // 활성화 시 원래 배경색
     userInput.style.backgroundColor = '#ffffff'; // 활성화 시 원래 배경색
+
+    chatInput.style.height = '60px'; // 초기 높이로 재설정
+    userInput.style.height = '50px'; // 초기 높이로 재설정
     
     userInput.focus();
 }
@@ -374,5 +381,50 @@ const displayLoadingMessage = (threadId) => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
     return loadingElement;
 };
+
+function adjustTextareaHeight(textarea) {
+    textarea.style.height = 'auto'; 
+    const padding = 10; // textarea와 chatInput에 적용할 패딩 값
+    const maxHeight = 140; // textarea의 최대 높이
+    const newHeight = textarea.scrollHeight - padding;
+
+    // 현재 텍스트 줄 수를 계산
+    const lineHeight = parseInt(window.getComputedStyle(textarea).lineHeight, 10);
+    const currentLines = Math.floor(newHeight / lineHeight);
+
+    // console.log("lineHeight : ",lineHeight);
+    // console.log("currentLines : ",currentLines);
+
+    // console.log(textarea.scrollHeight) // 21씩 증가
+    // 최소 줄 수를 유지하고 싶으면 여기서 한 줄 또는 특정 높이로 고정
+    if (currentLines <= 2) {
+        textarea.style.height = '40px'; // 초기 높이 설정 (예: 40px)
+        return;
+    }
+
+    if (newHeight > maxHeight) {
+        textarea.style.height = maxHeight + 'px';
+        textarea.style.overflowY = 'auto'; // 스크롤바 보이기
+    } else {
+        textarea.style.height = (newHeight-padding) + 'px';
+        textarea.style.overflowY = 'hidden'; // 스크롤바 숨기기
+    }
+
+    const chatInput = document.getElementById('chatInput');
+    chatInput.style.height = 'auto';
+    chatInput.style.height = Math.min(newHeight + 30, 180) + 'px'; // 패딩을 고려한 높이 계산
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 console.log('Script loaded');
