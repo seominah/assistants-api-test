@@ -31,10 +31,23 @@ def get_thread_message(thread_id):
 
 def get_chat_title():
     return chat_title
+
+def get_file_references():
+    # 중복을 제거하기 위해 set 사용
+    unique_file_names = set()
+
+    for file_name in file_names:
+        # 정규 표현식을 사용하여 숫자, 점(.), 공백을 제거
+        pure_name = re.sub(r'^\d+\.\s*', '', file_name).strip()  # 앞의 숫자, 점(.) 그리고 공백 제거
+        pure_name = re.sub(r'\.\w+$', '', pure_name)  # 확장자 제거 (예: .txt)
+        unique_file_names.add(pure_name)
+
+    return list(unique_file_names)
         
 
 def get_chatbot_response(message_req, thread_id):
     global chat_title  # chat_title을 전역 변수로 사용
+    global file_names  # file_references를 전역 변수로 사용
     client = open_ai()
     assistant_id = current_app.config['ASSISTANTS_ID']
 
@@ -67,9 +80,9 @@ def get_chatbot_response(message_req, thread_id):
                 for content in event.data.delta.content:
                     if content.type == "text":
                         if content.text.annotations:   # 참고하는 파일 정보 (출처정보)  text='【57:6†source】'  
-                            # print("--File annotations--")
-                            # print(content.text.annotations)
-                            # print("---------")
+                            print("--File annotations--")
+                            print(content.text.annotations)
+                            print("---------")
                             # annotations에서 파일 ID나 파일 이름 추출
                             for annotation in content.text.annotations:
                                 if annotation.type == 'file_citation' and annotation.file_citation.file_id:

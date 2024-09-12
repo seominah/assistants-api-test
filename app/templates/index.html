@@ -51,6 +51,17 @@
                 <div class="card-body" id="chatMessagesContainer">
                     <!-- Chat messages will appear here -->
                 </div>
+                <!-- 출처 파일명을 표시할 카드 섹션 -->
+                <div class="mt-3 d-none" id="referenceCardContainer">
+                    <div class="references-bubble card">
+                        <div class="card-body">
+                            <h5 style="font-size: 13px;">출처 파일:</h5>
+                            <ul class="list-unstyled" id="fileReferences">
+                                <!-- 출처 파일명이 이곳에 추가됩니다 -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
                 <div class="chat-input" id="chatInput">
                     <textarea class="custom-textarea" type="text" id="userInput" autofocus placeholder="줄바꿈 Shift + Enter / 입력 Enter 입니다." oninput="adjustTextareaHeight(this)"></textarea>
                     <button class="btn mr-1 mb-1" id="sendButton">
