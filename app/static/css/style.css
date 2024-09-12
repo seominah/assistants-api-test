@@ -27,7 +27,9 @@ body {
   height: calc(100vh - 15px); /* 입력창과 footer의 높이를 고려하여 조정 */
   overflow-y: hidden; /* 기본 상태에서는 스크롤 숨기기 */
   background-color: #ffffff;
-  border-right: 1px solid #dee2e6;
+  border-right: none;
+  padding: 0 !important; 
+  margin: 0 !important; 
 }
 
 /* 사이드바 카드에 라운드 처리 */
@@ -39,12 +41,14 @@ body {
 .chat-container {
   height: calc(100vh - 15px); /* 입력창과 footer의 높이를 고려하여 조정 */
   overflow-y: auto;
-  padding: 20px;
+  padding: 0 !important;
+  margin: 0 !important;
   background-color: #ffffff;
   transition: width 0.3s ease; /* 부드러운 전환 효과 */
   width: 100%;
   border-top-right-radius: 10px; /* 오른쪽 위 모서리를 둥글게 */
   border-top-left-radius: 10px; /* 왼쪽 위 모서리를 둥글게 */
+  border-left: none;
 }
 
 .hide-list .sidebar {
@@ -71,6 +75,22 @@ body {
   color: white; /* 호버 시에도 아이콘과 폰트 색상을 유지 */
 }
 
+/* 기본 색상 설정 */
+.delete-button {
+  color: #1AB394; 
+  background: transparent; /* 배경을 투명하게 설정 */
+  border: none; /* 테두리를 제거 */
+  font-size: 20px; /* 글씨 크기 설정 */
+  cursor: pointer; /* 마우스 포인터를 클릭 가능한 것으로 변경 */
+  transition: color 0.3s; /* 색상 변경 시 전환 효과 추가 */
+}
+
+/* 마우스 올렸을 때 색상 설정 */
+.delete-button:hover {
+  color: #02e7b9; 
+}
+
+
 
 /* 채팅 목록 */
 #chat-list {
@@ -78,7 +98,7 @@ body {
   max-height: calc(100vh - 50px); /* 예시: 상단 버튼 영역만큼 빼기 */
   overflow-y: auto;
   background-color: #ffffff;
-  border-right: 1px solid #dee2e6;
+  border-right: none !important;
 }
 
 /* 채팅 메시지 컨테이너 */
@@ -112,6 +132,7 @@ body {
 /* 추가 스타일 */
 .list-group-item {
   cursor: pointer;
+  border-right: none;
 }
 
 .list-gr oup-item.active {
@@ -169,6 +190,39 @@ body {
   border-radius: 20px 0 20px 20px; /* 우측 상단 모서리 둥글게 */
 }
 
+/* references-bubble 스타일 수정 */
+.references-bubble {
+  background-color: white;
+  border-color: #1AB394;
+  border-radius: 0 20px 20px 20px; /* 좌측 상단 모서리 둥글게 */
+  padding: 5px;
+  font-size: 13px;
+  margin-left: 52px;
+  margin-top: 1px;
+  margin-bottom: 1px; /* 하단 여백 최소화 */
+  width: 70%; /* 메시지 버블과 동일한 최대 너비 */
+  max-width: 70%; /* 부모 요소와 일치하도록 설정 */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  height: auto;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 상하좌우 그림자 */
+  transition: box-shadow 0.3s ease; /* 부드러운 전환 효과 */
+  display: block; /* 블록 요소로 설정하여 넓이 차지 */
+}
+
+.references-bubble a {
+  font-size: 12px; /* 링크의 폰트 크기 */
+  color: #1AB394;
+  text-decoration: none;
+}
+
+.references-bubble a:hover {
+    text-decoration: underline;
+}
+
 .card-footer {
   background-color: #f8f9fa;
 }
@@ -203,7 +257,7 @@ body {
 .chat-input {
   display: flex; /* Flexbox 컨테이너로 설정 */
   align-items: flex-end; /* 컨테이너 하단에 맞춰 요소 정렬 */
-  border: 1px solid #ccc; /* 테두리 스타일 */
+  border: 1px solid #3465A7; /* 테두리 스타일 */
   border-radius: 10px; /* 모서리를 둥글게 */
   padding: 3px; /* 내부 상하 5px, 좌우 1px 여백 */
   margin: 5px; /* 외부 좌우 여백 */
@@ -214,17 +268,8 @@ body {
   position: relative;
   max-height: 180px; /* 컨테이너의 최대 높이 */
   height: auto; /* 내용에 따라 높이가 조정되도록 설정 */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* 상하좌우 그림자 */
 }
-
-/* #userInput {
-  flex-grow: 1;
-  padding: 15px;
-  border: 1px solid #ced4da;
-  border-radius: 8px;
-  font-size: 14px;
-  font-family: 'Roboto', sans-serif;
-  height: 60px; /* 높이를 50px로 설정하여 더 넓게 보이도록 함 */
-} */
 
 #userInput:focus {
   outline: none;
@@ -234,8 +279,8 @@ body {
   flex-shrink: 0; /* 버튼 크기를 줄이지 않도록 설정 */
   padding: 5px 10px; /* 버튼 내부 여백 */
   background-color: white; /* 버튼 배경색 */
-  color: #3465A7; /* 버튼 텍스트 색상 */
-  border: 2px solid #3465A7; /* 버튼 테두리 제거 */
+  color: #1AB394; /* 버튼 텍스트 색상 */
+  border: 2px solid #1AB394; /* 버튼 테두리 제거 */
   border-radius: 10px; /* 버튼 모서리 둥글게 */
   height: 40px; /* 버튼 높이 고정 */
   align-self: flex-end; /* 버튼을 아래쪽으로 정렬 */
@@ -243,7 +288,7 @@ body {
 }
 
 #sendButton:hover {
-  background-color: #3465A7;
+  background-color: #1AB394;
   color: white; /* 버튼 텍스트 색상 */
 }
 

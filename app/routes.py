@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, Response, stream_with_context, session, jsonify
-from app.chatbot import get_chatbot_response, create_thread, get_thread_message, delete_thread, get_chat_title
+from app.chatbot import get_chatbot_response, create_thread, get_thread_message, delete_thread, get_chat_title, get_file_references
 from uuid import uuid4
 
 bp = Blueprint('routes', __name__)
@@ -56,3 +56,12 @@ def api_get_chat_title():
     # print("Fetched chat title:", chat_title)  # 디버깅을 위한 로그 추가
     
     return jsonify({"chat_title": chat_title})
+
+# 참고 파일 리스트를 반환하는 API 엔드포인트 추가
+@bp.route('/api/file-references', methods=['GET'])
+def api_get_file_references():
+    # `chatbot.py`의 `get_chat_title` 함수 호출하여 타이틀 가져오기
+    file_references = get_file_references()
+    print("Fetched file references:", file_references)  # 디버깅을 위한 로그 추가
+    
+    return jsonify({"file_references": file_references})

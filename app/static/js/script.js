@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let chatIndex = 1; // Initialize the chat index
 
     const chatMessagesContainer = document.getElementById('chatMessagesContainer');
+    const referenceCardContainer = document.getElementById('referenceCardContainer');
+    const fileReferencesList = document.getElementById('fileReferences');
     const userInput = document.getElementById('userInput');
     const chatInput = document.getElementById('chatInput');
     const sendButton = document.getElementById('sendButton');
@@ -184,13 +186,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                         `;
+                        fetchFileReferences(); // 파일 참조 정보를 가져오는 함수 호출
                     } else {
-                        displayMessage('bot', buffer, threadId);
+                        messageElement = displayMessage('bot', buffer, threadId);
                     }
 
                     // 응답이 완료된 후 입력 필드와 버튼을 활성화
                     enableInputs();
                     fetchChatTitle();
+                    fetchFileReferences(messageElement); // 현재 메시지 요소를 전달
                     return;
                 }
 
@@ -234,8 +238,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const chatTitle = data.chat_title; // 타이틀 추출
             console.log('채팅방 타이틀:', chatTitle);
             
-            // 채팅방 타이틀을 강제로 지정
-            setChatTitle(chatTitle);
+            if (chatTitle) {
+                // 채팅방 타이틀을 강제로 지정
+                setChatTitle(chatTitle);
+            } else {
+                referenceCardContainer.classList.add('d-none');
+            }
+
         } catch (error) {
             console.error('Error fetching chat title:', error);
         }
@@ -249,6 +258,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 chatTitleElement.textContent = title; // 타이틀 설정
         }
     };
+
+    // fetchFileReferences 함수에서 messageElement를 사용하여 출처 정보를 올바른 위치에 표시
+    function fetchFileReferences(messageElement) {
+        fetch('/api/file-references')
+        .then(response => response.json())
+        .then(data => {
+            if (!messageElement) return; // 메시지 요소가 없으면 종료
+            updateReferenceCard(data.file_references, messageElement); // 메시지 요소 참조를 전달하여 올바른 위치에 업데이트
+        })
+        .catch(error => console.error('Error fetching file references:', error));
+    }
+
+    // 출처 카드를 업데이트하는 함수
+    function updateReferenceCard(fileReferences, messageElement) {
+        // 출처 파일 리스트가 비어 있는지 확인
+        if (!fileReferences || fileReferences.length === 0) return; // 출처 파일이 없으면 함수를 종료
+    
+        const referenceCardContainer = document.createElement('div');
+        referenceCardContainer.classList.add('card', 'mt-1', 'references-bubble');
+        referenceCardContainer.innerHTML = `
+            <div class="card-body">
+                <h5 style="font-size: 13px;">출처 파일:</h5>
+                <ul class="list-unstyled" style="font-size: 11px;">
+                    ${fileReferences.map(file => `<li><a href="#" onclick="handleFileClick('${file}')">${file}</a></li>`).join('')}
+                </ul>
+            </div>
+        `;
+
+        messageElement.parentNode.insertBefore(referenceCardContainer, messageElement.nextSibling); // 메시지 바로 아래에 출처 카드 추가
+    }
+    
+
 
     const displayMessage = (sender, message, threadId, isLoading = false) => {
         const chatMessages = document.getElementById(`chat-messages-${threadId}`);
@@ -414,9 +455,6 @@ function adjustTextareaHeight(textarea) {
     chatInput.style.height = 'auto';
     chatInput.style.height = Math.min(newHeight + 30, 180) + 'px'; // 패딩을 고려한 높이 계산
 }
-
-
-
 
 
 
