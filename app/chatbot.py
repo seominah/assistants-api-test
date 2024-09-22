@@ -1,6 +1,6 @@
 import json
 import re
-from time import time
+from time import sleep
 from flask import Flask, jsonify, current_app
 import openai  # 추가
 from openai import OpenAI
@@ -54,95 +54,99 @@ def get_chatbot_response(message_req, thread_id):
     max_tokens = int(current_app.config['MAX_TOKENS']) # 환경 변수에서 가져온 문자열을 정수로 변환
     model_id = client.beta.assistants.retrieve(assistant_id).model
 
-    print("쓰레디 아이디!! 2번" + thread_id)
-    
-    try:
-        message = client.beta.threads.messages.create(
-            thread_id,
-            role="user",
-            content=message_req,
-        )
-        stream = client.beta.threads.runs.create(
-            thread_id=thread_id,
-            assistant_id=assistant_id,
-            stream=True
-        )
+    retry_count = 0
+    max_retries = 30
+    retry_delay = 2
+    is_completed = False  # 응답이 완료되었는지 추적하기 위한 플래그.
 
-        file_references = set()  # 파일 참조 정보를 중복 없이 수집하기 위한 집합
-        stream_all = ""
-        
-        # 토큰 수 계산
-        # input_tokens = count_tokens(client, "user", message_req, model=model_id)
-        # print(f"Input text token count: {input_tokens.total_tokens}")       
+    while not is_completed and retry_count < max_retries:
+        print(f"재시도 횟수: {retry_count + 1}")
+        try:
+            message = client.beta.threads.messages.create(
+                thread_id,
+                role="user",
+                content=message_req,
+            )
+            stream = client.beta.threads.runs.create(
+                thread_id=thread_id,
+                assistant_id=assistant_id,
+                stream=True
+            )
 
-        for event in stream:
-            if event.data.object == "thread.message.delta":
-                for content in event.data.delta.content:
-                    if content.type == "text":
-                        if content.text.annotations:   # 참고하는 파일 정보 (출처정보)  text='【57:6†source】'  
-                            print("--File annotations--")
-                            print(content.text.annotations)
-                            print("---------")
-                            # annotations에서 파일 ID나 파일 이름 추출
-                            for annotation in content.text.annotations:
-                                if annotation.type == 'file_citation' and annotation.file_citation.file_id:
-                                    file_id = annotation.file_citation.file_id
-                                    file_references.add(file_id)
-                        else:
-                            stream_all += content.text.value
-                            yield (content.text.value)
-            elif event.event == "thread.run.step.completed":
-                    # 토큰 사용량 로깅
-                    usage = event.data.usage
-                    # print(f"Usage: {usage}")
-            elif event.event == "thread.run.incomplete":
-                # 토큰 사용량 로깅
-                usage = event.data.usage
-                # print(f"Usage: {usage}")
-            elif event.event == "thread.run.step.failed":
-                Exception(event.data.last_error.code+" : "+event.data.last_error.message)
-        
-        # 파일명 가져오기
-        file_names = get_file_names(file_references)
+            file_references = set()  # 파일 참조 정보를 중복 없이 수집하기 위한 집합
+            stream_all = ""
+            
+            for event in stream:
+                if event.data.object == "thread.message.delta":
+                    for content in event.data.delta.content:
+                        if content.type == "text":
+                            if content.text.annotations:   # 참고하는 파일 정보 (출처정보)
+                                print("--File annotations--")
+                                print(content.text.annotations)
+                                print("---------")
+                                # annotations에서 파일 ID나 파일 이름 추출
+                                for annotation in content.text.annotations:
+                                    if annotation.type == 'file_citation' and annotation.file_citation.file_id:
+                                        file_id = annotation.file_citation.file_id
+                                        file_references.add(file_id)
+                            else:
+                                stream_all += content.text.value
+                                yield content.text.value  # 스트리밍된 답변을 반환
 
-        # 참고파일 중 첫번째 파일명 가져오기
-        chat_title = get_primary_reference_file_name(file_names)
+            # 빈 문자열일 경우 재시도
+            if not stream_all.strip():
+                retry_count += 1
+                print("응답을 가져오는 데 실패했습니다. 다시 시도 중입니다...")
+                sleep(retry_delay)  # time 모듈의 sleep 함수 사용
+                continue  # 루프를 재시작
+            else:
+                is_completed = True  # 응답이 성공적으로 완료되었을 경우 종료
+            
+            # 파일명 가져오기
+            file_names = get_file_names(file_references)
 
-        print("---------GPT 답변------------")
-        print(stream_all)   
-        print("---------참고파일------------")
-        print("Referenced Files:", file_names)  # 수집된 파일 참조 정보 출력
-        print("chat title:", chat_title)  # 참고파일 중 첫번째 파일명으로 제목 설정
-        print("-----------------------------")
+            # 참고파일 중 첫번째 파일명 가져오기
+            chat_title = get_primary_reference_file_name(file_names)
 
+            print("---------GPT 답변------------")
+            print(stream_all)   
+            print("---------참고파일------------")
+            print("Referenced Files:", file_names)  # 수집된 파일 참조 정보 출력
+            print("chat title:", chat_title)  # 참고파일 중 첫번째 파일명으로 제목 설정
+            print("-----------------------------")
 
-        if not stream_all.strip(): # 빈 문자열일 경우
-            yield "죄송합니다. 응답을 가져오는 데 실패했습니다. 다시 시도해 주세요."
+        except openai.RateLimitError as e:
+            print(str(e))
+            if 'TPM' in str(e):
+                yield "오류: 메시지가 너무 깁니다. 더 짧은 메시지를 입력해주세요."
+            else:
+                yield f"토큰 초과 오류가 발생했습니다. : {str(e)}"
+            return  # 재시도 중단
+        except openai.APITimeoutError as e:
+            yield f"시간 초과 오류가 발생했습니다. : {str(e)}"
+            retry_count += 1
+            sleep(retry_delay)  # time 모듈의 sleep 함수 사용
+        except openai.BadRequestError as e:
+            print(str(e))
+            if 'maximum context length' in str(e):
+                yield "오류: 메시지가 너무 깁니다. 더 짧은 메시지를 입력해주세요."
+            else:
+                yield f"요청 메시지 오류가 발생했습니다. : {str(e)}"
+            return  # 재시도 중단
+        except openai.APIError as e:
+            yield f"APIError 오류가 발생했습니다. : {str(e)}"
+            retry_count += 1
+            sleep(retry_delay)  # time 모듈의 sleep 함수 사용
+        except openai.OpenAIError as e:
+            yield f"OpenAIError 오류가 발생했습니다. : {str(e)}"
+            return  # 재시도 중단
+        except Exception as e:
+            yield f"Exception 오류가 발생했습니다. : {str(e)}"
+            retry_count += 1
+            sleep(retry_delay)  # time 모듈의 sleep 함수 사용
 
-
-
-    except openai.RateLimitError as e:
-        print(str(e))
-        # 토큰 초과 오류 처리
-        if 'TPM' in str(e):
-            yield "오류: 메시지가 너무 깁니다. 더 짧은 메시지를 입력해주세요."
-        else:
-            yield f"토큰 초과 오류가 발생했습니다. : {str(e)}"
-    except openai.APITimeoutError as e:
-        yield f"시간 초과 오류가 발생했습니다. : {str(e)}"
-    except openai.BadRequestError as e:
-        print(str(e))
-        # 토큰 초과 오류 처리
-        if 'maximum context length' in str(e):
-            yield "오류: 메시지가 너무 깁니다. 더 짧은 메시지를 입력해주세요."
-        else:
-            yield f"요청메시지 오류가 발생했습니다. : {str(e)}"
-    except openai.APIError as e:
-        yield f"APIError 오류가 발생했습니다. : {str(e)}"
-    except openai.OpenAIError as e:
-        yield f"OpenAIError 오류가 발생했습니다. : {str(e)}"
-    except Exception as e:
-        yield f"Exception 오류가 발생했습니다. : {str(e)}"
+    if retry_count >= max_retries:
+        yield "응답을 가져오는 데 실패했습니다. 나중에 다시 시도해 주세요."
 
 def count_tokens(client, role, text, model):
     # 토큰 수를 계산하는 함수
