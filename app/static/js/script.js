@@ -58,9 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
             newChatItem.className = "list-group-item list-group-item-action";
             newChatItem.setAttribute('data-thread-id', newThreadId);
             newChatItem.innerHTML = `
-                <div class="d-flex chat-box">
+                <div class="d-flex mb-1 chat-box">
                     <div class="chat-title ${newThreadId}">${chatTitle}</div>
-                    <i class="fas fa-times delete-button"></i>
+                    <i class="fa-regular fa-trash-can delete-button"></i>
                 </div>
             `;
     
@@ -181,12 +181,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="d-flex">
                             <img src="static/image/logo_test.png" class="align-self-start mr-2 chat-logo">
                             <div class="media-body text-left">
-                                <p class="mb-1 message-bubble bot-bubble">${buffer.replace(/\n/g, '<br>')}</p>
+                                <p class="mb-1 mr-1 message-bubble bot-bubble">${buffer.replace(/\n/g, '<br>')}</p>                                
+                                <div class="card mt-1 message-bubble references-bubble" id="referenceCard-${threadId}">
+                                    <div class="card-body">
+                                        <p>로딩 중...</p> <!-- 여기 나중에 fetchFileReferences로 내용을 변경 -->
+                                    </div>
+                                </div>
                                 <p class="text-muted small">${new Date().toLocaleTimeString()} | ${new Date().toLocaleDateString()}</p>
                             </div>
                         </div>
                         `;
-                        fetchFileReferences(); // 파일 참조 정보를 가져오는 함수 호출
+                        fetchFileReferences(messageElement); // 파일 참조 정보를 가져오는 함수 호출
                     } else {
                         messageElement = displayMessage('bot', buffer, threadId);
                     }
@@ -194,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 응답이 완료된 후 입력 필드와 버튼을 활성화
                     enableInputs();
                     fetchChatTitle();
-                    fetchFileReferences(messageElement); // 현재 메시지 요소를 전달
+                    //fetchFileReferences(messageElement); // 현재 메시지 요소를 전달
                     return;
                 }
 
@@ -265,28 +270,52 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             if (!messageElement) return; // 메시지 요소가 없으면 종료
-            updateReferenceCard(data.file_references, messageElement); // 메시지 요소 참조를 전달하여 올바른 위치에 업데이트
+        
+            // 출처 파일이 있는지 확인하고 없으면 bubble 제거
+            if (data.file_references && data.file_references.length > 0) {
+                updateReferenceCard(data.file_references, messageElement); // 메시지 요소 참조를 전달하여 올바른 위치에 업데이트
+            } else {
+                const referenceBubble = document.getElementById(`referenceCard-${threadId}`);
+                if (referenceBubble) {
+                    referenceBubble.style.display = 'none';
+                    referenceBubble.remove();
+                }
+            }
         })
         .catch(error => console.error('Error fetching file references:', error));
     }
 
     // 출처 카드를 업데이트하는 함수
     function updateReferenceCard(fileReferences, messageElement) {
+        const referenceCard = messageElement.querySelector(`#referenceCard-${threadId}`);
+        if (!referenceCard) return; // 참조 카드가 없으면 종료
+
         // 출처 파일 리스트가 비어 있는지 확인
-        if (!fileReferences || fileReferences.length === 0) return; // 출처 파일이 없으면 함수를 종료
-    
-        const referenceCardContainer = document.createElement('div');
-        referenceCardContainer.classList.add('card', 'mt-1', 'references-bubble');
-        referenceCardContainer.innerHTML = `
+        if (!fileReferences || fileReferences.length === 0) {
+            referenceCard.innerHTML = ''; // 파일 참조가 없으면 내용 지우기
+        } else {
+            referenceCard.innerHTML = `
             <div class="card-body">
                 <h5 style="font-size: 13px;">출처 파일:</h5>
                 <ul class="list-unstyled" style="font-size: 11px;">
                     ${fileReferences.map(file => `<li><a href="#" onclick="handleFileClick('${file}')">${file}</a></li>`).join('')}
                 </ul>
             </div>
-        `;
+            `;
+        }
 
-        messageElement.parentNode.insertBefore(referenceCardContainer, messageElement.nextSibling); // 메시지 바로 아래에 출처 카드 추가
+        // const referenceCardContainer = document.createElement('div');
+        // referenceCardContainer.classList.add('card', 'mt-1', 'references-bubble');
+        // referenceCardContainer.innerHTML = `
+        //     <div class="card-body">
+        //         <h5 style="font-size: 13px;">출처 파일:</h5>
+        //         <ul class="list-unstyled" style="font-size: 11px;">
+        //             ${fileReferences.map(file => `<li><a href="#" onclick="handleFileClick('${file}')">${file}</a></li>`).join('')}
+        //         </ul>
+        //     </div>
+        // `;
+
+        // messageElement.parentNode.insertBefore(referenceCardContainer, messageElement.nextSibling); // 메시지 바로 아래에 출처 카드 추가
     }
     
 
