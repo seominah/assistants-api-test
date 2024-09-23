@@ -46,7 +46,7 @@ def chat():
         for chunk in get_chatbot_response(user_message, thread_id):
             yield chunk
 
-    return Response(generate(), content_type='text/markdown')
+    return Response(generate(), content_type='text/text')
 
 # 대표 참고 파일명을 반환하는 API 엔드포인트 추가
 @bp.route('/api/chat-title', methods=['GET'])
