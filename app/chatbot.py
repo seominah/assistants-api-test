@@ -81,9 +81,9 @@ def get_chatbot_response(message_req, thread_id):
                     for content in event.data.delta.content:
                         if content.type == "text":
                             if content.text.annotations:   # 참고하는 파일 정보 (출처정보)
-                                print("--File annotations--")
-                                print(content.text.annotations)
-                                print("---------")
+                                # print("--File annotations--")
+                                # print(content.text.annotations)
+                                # print("---------")
                                 # annotations에서 파일 ID나 파일 이름 추출
                                 for annotation in content.text.annotations:
                                     if annotation.type == 'file_citation' and annotation.file_citation.file_id:

@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, Response, stream_with_context, session, jsonify
 from app.chatbot import get_chatbot_response, create_thread, get_thread_message, delete_thread, get_chat_title, get_file_references
 from uuid import uuid4
+from fileURL import file_urls
 
 bp = Blueprint('routes', __name__)
 
@@ -53,15 +54,28 @@ def chat():
 def api_get_chat_title():
     # `chatbot.py`의 `get_chat_title` 함수 호출하여 타이틀 가져오기
     chat_title = get_chat_title()
-    # print("Fetched chat title:", chat_title)  # 디버깅을 위한 로그 추가
+    # print("Fetched chat title:", chat_title)  
     
     return jsonify({"chat_title": chat_title})
 
 # 참고 파일 리스트를 반환하는 API 엔드포인트 추가
 @bp.route('/api/file-references', methods=['GET'])
 def api_get_file_references():
-    # `chatbot.py`의 `get_chat_title` 함수 호출하여 타이틀 가져오기
+    # `chatbot.py`의 `get_file_references` 함수 호출하여 파일명 가져오기
     file_references = get_file_references()
-    print("Fetched file references:", file_references)  # 디버깅을 위한 로그 추가
+    # print("Fetched file references:", file_references)  
     
     return jsonify({"file_references": file_references})
+
+# 참고 파일 URL을 반환하는 API 엔드포인트 추가
+@bp.route('/api/get-file-url', methods=['GET'])
+def api_get_file_url():
+    file_name = request.args.get('fileName')  # 요청에서 파일명 가져오기
+    
+    # 딕셔너리의 키를 순회하면서 파일명에 포함된 키를 찾음
+    for key in file_urls:
+        if key in file_name:  # 파일명에 키가 포함되는지 확인
+            return jsonify({'url': file_urls[key]})  # 해당 키의 URL 반환
+
+    # 해당하는 URL을 찾지 못한 경우
+    return jsonify({'error': 'URL not found'}), 404
