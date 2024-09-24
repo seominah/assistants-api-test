@@ -246,8 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (chatTitle) {
                 // 채팅방 타이틀을 강제로 지정
                 setChatTitle(chatTitle);
-            } else {
-                referenceCardContainer.classList.add('d-none');
             }
 
         } catch (error) {
@@ -298,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-body">
                 <h5 style="font-size: 13px;">출처 파일:</h5>
                 <ul class="list-unstyled" style="font-size: 11px;">
-                    ${fileReferences.map(file => `<li><a href="#" onclick="handleFileClick('${file}')">${file}</a></li>`).join('')}
+                    ${fileReferences.map(file => `<li><a href="#" onclick="fetchFileUrl('${file}')">${file}</a></li>`).join('')}
                 </ul>
             </div>
             `;
@@ -316,6 +314,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // `;
 
         // messageElement.parentNode.insertBefore(referenceCardContainer, messageElement.nextSibling); // 메시지 바로 아래에 출처 카드 추가
+    }
+
+    // 파일 URL을 가져오는 함수
+    window.fetchFileUrl = function(fileName) {
+        fetch(`/api/get-file-url?fileName=${encodeURIComponent(fileName)}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log("URL : "+data);
+            if (data.url) {
+                window.open(data.url, '_blank'); // URL을 새 창에서 엽니다
+            } else {
+                console.error('URL not found for file:', fileName);
+            }
+        })
+        .catch(error => console.error('Error fetching URL for file:', error));
     }
     
 
