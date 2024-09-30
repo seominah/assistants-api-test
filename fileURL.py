@@ -20,8 +20,12 @@ file_urls = {
     "내부회계관리규정": "https://hansolpns-it.atlassian.net/wiki/x/fAAsD",
     "감사규정": "https://hansolpns-it.atlassian.net/wiki/x/YgAcD",
     #지침.가이드
+    "직급체계": "https://hansolpns-it.atlassian.net/wiki/x/A4IyD",
+    "보상제도": "https://hansolpns-it.atlassian.net/wiki/x/GgEyD",
     "상벌지침": "https://hansolpns-it.atlassian.net/wiki/x/2gEuD",
     "여비지침": "https://hansolpns-it.atlassian.net/wiki/x/KgMsD",
+    "퇴직연금": "https://hansolpns-it.atlassian.net/wiki/x/n4EpD",
+    "근태": "https://hansolpns-it.atlassian.net/wiki/x/tgMsD",
     "증명서": "https://hansolpns-it.atlassian.net/wiki/x/9QMsD",
     "동호회": "https://hansolpns-it.atlassian.net/wiki/x/3QIwD",
     "프로젝트": "https://hansolpns-it.atlassian.net/wiki/x/xQMwD",
