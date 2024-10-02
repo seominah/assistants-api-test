@@ -2,7 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let threadId = null;
     let sessionId = document.getElementById('session-info')?.getAttribute('data-session-id');
     let chatIndex = 1; // Initialize the chat index
-
+    
+    const chatContainer = document.querySelector('.chat-container');
+    const fileContainer = document.querySelector('.file-container');
     const chatMessagesContainer = document.getElementById('chatMessagesContainer');
     const referenceCardContainer = document.getElementById('referenceCardContainer');
     const fileReferencesList = document.getElementById('fileReferences');
@@ -13,8 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatList = document.getElementById('chat-list');
 
     // 햄버거 버튼 메뉴로 대화 목록 숨기기/펼치기 UI 변경
+    const toggleNav = document.getElementById('nav-toggle');
     const toggleMenuButton = document.getElementById('toggleMenuButton');
     const toggleMenuButtonInChat = document.getElementById('toggleMenuButtonInChat');
+    const chatListButton = document.getElementById('chatList');
+    const refDocsButton = document.getElementById('refDocs');
     const newChatButton = document.getElementById('newChat');
     const body = document.body; // 전체 body 요소 가져오기
 
@@ -23,18 +28,54 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    toggleMenuButton.addEventListener('click', () => {
-        // 'hide-list' 클래스를 토글하여 사이드바 숨김/보이기
-        console.log('햄버거 버튼 클릭됨');
+    toggleNav.addEventListener('click', () => {
         body.classList.toggle('hide-list');
-        toggleMenuButtonInChat.classList.toggle('d-none'); // 대화창 내부 버튼 표시
     });
 
-    toggleMenuButtonInChat.addEventListener('click', () => {
-        console.log("대화창 내 햄버거 버튼 클릭됨");
+    chatListButton.addEventListener('click', () => {
         body.classList.toggle('hide-list');
         toggleMenuButtonInChat.classList.toggle('d-none');  // 내부 버튼을 숨김
-        
+    });
+
+    refDocsButton.addEventListener('click', () => {
+    
+        // file-container가 보이는 상태인지 확인
+        if (fileContainer.style.display === 'none' || fileContainer.style.display === '') {
+            chatContainer.style.display = 'none';
+            fileContainer.style.display = 'block';  // file-container 보이기
+            
+            // 모든 파일 URL 리스트 가져오기
+            fetch('/api/all-file-urls')
+            .then(response => response.json())
+            .then(data => {
+                const fileListElement = document.getElementById('fileList');
+                fileListElement.innerHTML = ''; // 기존 리스트 비우기
+                
+                // 여러 파일을 리스트에 추가
+                if (data && Object.keys(data).length > 0) {
+                    for (const [fileName, fileUrl] of Object.entries(data)) {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<a href="${fileUrl}" target="_blank">${fileName}</a>`;
+                        fileListElement.appendChild(listItem);
+                    }
+                } else {
+                    fileListElement.innerHTML = '<li>파일이 없습니다.</li>';  // 파일이 없을 때 메시지
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching all file URLs:', error);
+            });
+        } else {
+            // file-container 숨기고 chat-container 다시 표시
+            fileContainer.style.display = 'none';
+            chatContainer.style.display = 'block';
+        }
+    });
+
+    // 닫기 버튼 클릭 시 다시 chat-container를 보여줍니다.
+    document.getElementById('closeRefList').addEventListener('click', function() {
+        document.querySelector('.file-container').style.display = 'none';
+        document.querySelector('.chat-container').style.display = 'block'; // chat-container 보이기
     });
 
     newChatButton.addEventListener('click', () => {
@@ -173,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const decoder = new TextDecoder('utf-8');
             let buffer = '';
             let messageElement = loadingMessage;
+            const uniqueId = `${threadId}-${Math.random().toString(36).substring(2, 15)}`;
 
             return reader.read().then(function processText({ done, value }) {
                 if (done) {
@@ -182,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <img src="static/image/logo_test.png" class="align-self-start mr-2 chat-logo">
                             <div class="media-body text-left">
                                 <p class="mb-1 mr-1 message-bubble bot-bubble">${buffer.replace(/\n/g, '<br>')}</p>                                
-                                <div class="card mt-1 message-bubble references-bubble" id="referenceCard-${threadId}">
+                                <div class="card mt-1 message-bubble references-bubble" id="referenceCard-${uniqueId}">
                                     <div class="card-body">
                                         <p>로딩 중...</p> <!-- 여기 나중에 fetchFileReferences로 내용을 변경 -->
                                     </div>
@@ -191,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                         `;
-                        fetchFileReferences(messageElement); // 파일 참조 정보를 가져오는 함수 호출
+                        fetchFileReferences(messageElement, uniqueId); // 파일 참조 정보를 가져오는 함수 호출
                     } else {
                         messageElement = displayMessage('bot', buffer, threadId);
                     }
@@ -263,20 +305,29 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // fetchFileReferences 함수에서 messageElement를 사용하여 출처 정보를 올바른 위치에 표시
-    function fetchFileReferences(messageElement) {
+    function fetchFileReferences(messageElement, uniqueId) {
         fetch('/api/file-references')
         .then(response => response.json())
         .then(data => {
             if (!messageElement) return; // 메시지 요소가 없으면 종료
+
+            console.log("data.file_references.length", data.file_references.length);
+            console.log("data.file_references", data.file_references);
+            const referenceBubble = document.getElementById(`referenceCard-${uniqueId}`);
         
             // 출처 파일이 있는지 확인하고 없으면 bubble 제거
             if (data.file_references && data.file_references.length > 0) {
-                updateReferenceCard(data.file_references, messageElement); // 메시지 요소 참조를 전달하여 올바른 위치에 업데이트
-            } else {
-                const referenceBubble = document.getElementById(`referenceCard-${threadId}`);
+                updateReferenceCard(data.file_references, messageElement, uniqueId); // 메시지 요소 참조를 전달하여 올바른 위치에 업데이트
+            } else {                
+                console.log("출처파일없음: ", referenceBubble);
                 if (referenceBubble) {
-                    referenceBubble.style.display = 'none';
-                    referenceBubble.remove();
+                    referenceBubble.style.display = 'none'; // 숨기기
+                    setTimeout(() => {
+                        referenceBubble.remove(); // 일정 시간 후에 DOM에서 제거
+                        console.log('Reference bubble removed.');
+                    }, 100); // DOM 업데이트 후 제거
+                } else {
+                    console.log('Reference bubble not found.');
                 }
             }
         })
@@ -284,8 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 출처 카드를 업데이트하는 함수
-    function updateReferenceCard(fileReferences, messageElement) {
-        const referenceCard = messageElement.querySelector(`#referenceCard-${threadId}`);
+    function updateReferenceCard(fileReferences, messageElement, uniqueId) {
+        const referenceCard = messageElement.querySelector(`#referenceCard-${uniqueId}`);
         if (!referenceCard) return; // 참조 카드가 없으면 종료
 
         // 출처 파일 리스트가 비어 있는지 확인

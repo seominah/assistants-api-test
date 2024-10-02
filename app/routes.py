@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, Response, stream_with_context, session, jsonify
-from app.chatbot import get_chatbot_response, create_thread, get_thread_message, delete_thread, get_chat_title, get_file_references
+from app.chatbot import get_chatbot_response, create_thread, get_thread_message, delete_thread, get_chat_title, get_file_references, get_all_file_urls
 from uuid import uuid4
 from fileURL import file_urls
 
@@ -79,3 +79,10 @@ def api_get_file_url():
 
     # 해당하는 URL을 찾지 못한 경우
     return jsonify({'error': 'URL not found'}), 404
+
+# 모든 파일 URL을 반환하는 API 엔드포인트 추가
+@bp.route('/api/all-file-urls', methods=['GET'])
+def api_get_all_file_urls():
+    # chatbot.py에서 정의한 get_all_file_urls 함수 호출
+    file_urls = get_all_file_urls()
+    return jsonify(file_urls)  # 전체 파일 URL 딕셔너리를 JSON으로 반환    
