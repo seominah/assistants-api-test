@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,24 +10,69 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body>
+
+<body class="hide-list">
+
+    <div id="nav-bar">
+        <input id="nav-toggle" type="checkbox" checked/>
+        <div id="nav-header">
+            <a id="nav-title" href="https://hansolpns-it.atlassian.net/wiki/spaces/HMS/overview" target="_blank">
+                <i class="fab fa-codepen"></i> HR Chatbot
+            </a>
+            <label for="nav-toggle">
+                <span id="nav-toggle-burger"></span>
+            </label>
+            <hr />
+        </div>
+        <div id="nav-content">
+            <div class="nav-button" id="chatList">
+                <i class="fas fa-list-ul fa-lg"></i> <span>Chat List</span>
+            </div>
+            <div class="nav-button" id="refDocs">
+                <i class="fas fa-book fa-lg"></i> <span>References Docs</span>
+            </div>
+            <div class="nav-button" id="newChat">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 12H14M12 10V14M21.0039 12C21.0039 16.9706 16.9745 21 12.0039 21C9.9675 21 3.00463 21 3.00463 21C3.00463 21 4.56382 17.2561 3.93982 16.0008C3.34076 14.7956 3.00391 13.4372 3.00391 12C3.00391 7.02944 7.03334 3 12.0039 3C16.9745 3 21.0039 7.02944 21.0039 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg> <span>New Chat</span>
+            </div>
+            <hr />
+            <div id="nav-content-highlight"></div>
+        </div>
+        <input id="nav-footer-toggle" type="checkbox" />
+        <div id="nav-footer">
+            <div id="nav-footer-heading">
+                <div id="nav-footer-avatar">
+                    <img src="{{ url_for('static', filename='image/icon-chat-gpt.svg') }}" />
+                </div>
+                <div id="nav-footer-titlebox">
+                    <a id="nav-footer-title" href="https://codepen.io/uahnbu/pens/public" target="_blank">GPT 4o</a>
+                    <span id="nav-footer-subtitle">Version 1.0.0</span>
+                </div>
+                <label for="nav-footer-toggle">
+                    <i class="fas fa-caret-up"></i>
+                </label>
+            </div>
+            <div id="nav-footer-content">
+                한솔PNS HR 챗봇 어시스턴트 입니다.
+            </div>
+        </div>
+    </div>
+
     <div id="session-info" data-session-id="{{ session_id }}"></div>
 
     <div class="container-fluid d-flex px-0">
-
         <!-- Left Chat List -->
         <div class="col-md-3 p-0 sidebar">
             <div class="card">
                 <!-- 상단 버튼 컨테이너 -->
                 <div class="button-container d-flex justify-content-between align-items-center">
                     <!-- 새로운 대화 시작하기 버튼 -->
-                    <button type="button" class="btn btn-light" id="newChat">
+                    <!-- <button type="button" class="btn btn-light" id="newChat">
                         <i class="fa-solid fa-plus"></i> New Chat
-                    </button>
-                    <!-- 햄버거 버튼 -->
-                    <button id="toggleMenuButton" class="btn btn-light">
-                        <i class="fa-solid fa-x"></i>
-                    </button>
+                    </button> -->
+                    
+                    <span style="font-size: 15px;">Chat List</span>
                 </div>
                 <div class="list-group" id="chat-list">
                     <!-- <button type="button" class="list-group-item list-group-item-action" id="newChat">
@@ -36,15 +82,11 @@
                 </div>
             </div>
         </div>
-            
+
         <!-- Right Chat Messages -->
         <div class="p-0 chat-container">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-start align-items-center">
-                    <!-- 대화창 내부의 햄버거 버튼 (초기에는 숨겨짐) -->
-                    <button id="toggleMenuButtonInChat" class="btn btn-primary d-none">
-                        <i class="fa-solid fa-bars"></i>
-                    </button>
                     <!-- 챗봇 타이틀 -->
                     <span style="font-size: 15px;">HansolPNS HR 챗봇</span>
                 </div>
@@ -63,21 +105,37 @@
                     </div>
                 </div> -->
                 <div class="chat-input" id="chatInput">
-                    <textarea class="custom-textarea" type="text" id="userInput" autofocus placeholder="줄바꿈 Shift + Enter / 입력 Enter 입니다." oninput="adjustTextareaHeight(this)"></textarea>
+                    <textarea class="custom-textarea" type="text" id="userInput" autofocus
+                        placeholder="줄바꿈 Shift + Enter / 입력 Enter 입니다." oninput="adjustTextareaHeight(this)"></textarea>
                     <button class="btn mr-1 mb-1" id="sendButton">
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
             </div>
         </div>
+
+        <!-- Right File Docs -->
+        <div class="p-0 file-container" style="display: none;">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span style="font-size: 15px;">출처 파일 목록</span>
+                </div>
+                <div class="card-body">
+                    <ul id="fileList" class="list-unstyled">
+                        <!-- 파일 목록이 여기 추가됩니다 -->
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
-    
+
     <footer class="footer fixed-bottom">
         <p class="version-info">Version 1.0.0</p>
     </footer>
-    
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
+
 </html>

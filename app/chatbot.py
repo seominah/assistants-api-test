@@ -6,6 +6,7 @@ import openai  # 추가
 from openai import OpenAI
 from pprint import pprint
 import openai
+from fileURL import file_urls
 
 def open_ai():
     api_key = current_app.config['OPEN_API_KEY']
@@ -209,3 +210,7 @@ def get_primary_reference_file_name(file_names):
 
     # 파일명이 빈 문자열이 아닌 경우 반환, 그렇지 않으면 원래 파일명을 반환
     return pure_file_name.strip() if pure_file_name.strip() else first_file_name  # 양쪽 공백 제거
+
+# 모든 파일 URL을 가져오는 함수
+def get_all_file_urls():
+    return file_urls  # 전체 딕셔너리를 반환
