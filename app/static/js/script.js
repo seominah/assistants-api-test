@@ -2,9 +2,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let threadId = null;
     let sessionId = document.getElementById('session-info')?.getAttribute('data-session-id');
     let chatIndex = 1; // Initialize the chat index
-    
+    let fileListFetched = false;  // 파일 목록이 이미 한 번 불러와졌는지 확인하는 변수
+    let categories = {
+        "전체": [],
+        "공지사항": [],
+        "규정": [],
+        "지침.가이드": [],
+        "기본정보": [],
+        "기타": []
+    };
+
     const chatContainer = document.querySelector('.chat-container');
     const fileContainer = document.querySelector('.file-container');
+    const tabLinks = document.querySelectorAll('.nav-tabs .nav-link');
+
     const chatMessagesContainer = document.getElementById('chatMessagesContainer');
     const referenceCardContainer = document.getElementById('referenceCardContainer');
     const fileReferencesList = document.getElementById('fileReferences');
@@ -14,75 +25,137 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteButton = document.getElementById('deleteButton');
     const chatList = document.getElementById('chat-list');
 
-    // 햄버거 버튼 메뉴로 대화 목록 숨기기/펼치기 UI 변경
-    const toggleNav = document.getElementById('nav-toggle');
-    const toggleMenuButton = document.getElementById('toggleMenuButton');
-    const toggleMenuButtonInChat = document.getElementById('toggleMenuButtonInChat');
     const chatListButton = document.getElementById('chatList');
     const refDocsButton = document.getElementById('refDocs');
     const newChatButton = document.getElementById('newChat');
     const body = document.body; // 전체 body 요소 가져오기
 
-    if (!chatMessagesContainer || !userInput || !sendButton || !chatList) {
+    if (!chatMessagesContainer || !userInput || !sendButton || !chatList || !chatContainer || !fileContainer) {
         console.error('Required DOM elements are missing.');
         return;
     }
 
-    toggleNav.addEventListener('click', () => {
-        body.classList.toggle('hide-list');
-    });
-
     chatListButton.addEventListener('click', () => {
         body.classList.toggle('hide-list');
-        toggleMenuButtonInChat.classList.toggle('d-none');  // 내부 버튼을 숨김
+
+        // chat-container가 보이도록 설정
+        fileContainer.style.display = 'none';
+        chatContainer.style.display = 'block';
+    });
+
+    tabLinks.forEach(tab => {
+        tab.addEventListener('click', function (event) {
+            event.preventDefault(); // 기본 링크 동작 방지
+
+            // 모든 탭에서 active 클래스를 제거
+            tabLinks.forEach(link => link.classList.remove('active'));
+
+            // 클릭된 탭에 active 클래스 추가
+            this.classList.add('active');
+        });
     });
 
     refDocsButton.addEventListener('click', () => {
-    
+        if (!fileListFetched) {
+            fetch('/api/all-file-urls')
+                .then(response => response.json())
+                .then(data => {
+                    const fileListElement = document.getElementById('fileList');
+                    fileListElement.innerHTML = ''; // 기존 리스트 비우기
+
+                    data.forEach(file => {
+                        categories["전체"].push(file);  // 전체 목록에 추가
+                        if (categories[file.category]) {
+                            categories[file.category].push(file);
+                        } else {
+                            categories["기타"].push(file);
+                        }
+                    });
+
+                    // 기본 탭은 전체 목록 표시
+                    filterAndShowCardsByCategory(categories["전체"]);
+
+                    // 탭 클릭 시 파일 목록 필터링
+                    document.getElementById('allFilesTab').addEventListener('click', () => filterAndShowCardsByCategory(categories["전체"]));
+                    document.getElementById('noticeTab').addEventListener('click', () => filterAndShowCardsByCategory(categories["공지사항"]));
+                    document.getElementById('regulationTab').addEventListener('click', () => filterAndShowCardsByCategory(categories["규정"]));
+                    document.getElementById('guideTab').addEventListener('click', () => filterAndShowCardsByCategory(categories["지침.가이드"]));
+                    document.getElementById('baseTab').addEventListener('click', () => filterAndShowCardsByCategory(categories["기본정보"]));
+                    document.getElementById('etcTab').addEventListener('click', () => filterAndShowCardsByCategory(categories["기타"]));
+
+                    fileListFetched = true;  // 한 번 불러온 후 다시 불러오지 않게 설정
+                })
+                .catch(error => {
+                    console.error('Error fetching all file URLs:', error);
+                });
+        }
+
+        if (!document.body.classList.contains('hide-list')) {
+            document.body.classList.add('hide-list');
+        }
+
         // file-container가 보이는 상태인지 확인
         if (fileContainer.style.display === 'none' || fileContainer.style.display === '') {
             chatContainer.style.display = 'none';
             fileContainer.style.display = 'block';  // file-container 보이기
-            
-            // 모든 파일 URL 리스트 가져오기
-            fetch('/api/all-file-urls')
-            .then(response => response.json())
-            .then(data => {
-                const fileListElement = document.getElementById('fileList');
-                fileListElement.innerHTML = ''; // 기존 리스트 비우기
-                
-                // 여러 파일을 리스트에 추가
-                if (data && Object.keys(data).length > 0) {
-                    for (const [fileName, fileUrl] of Object.entries(data)) {
-                        const listItem = document.createElement('li');
-                        listItem.innerHTML = `<a href="${fileUrl}" target="_blank">${fileName}</a>`;
-                        fileListElement.appendChild(listItem);
-                    }
-                } else {
-                    fileListElement.innerHTML = '<li>파일이 없습니다.</li>';  // 파일이 없을 때 메시지
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching all file URLs:', error);
-            });
         } else {
-            // file-container 숨기고 chat-container 다시 표시
             fileContainer.style.display = 'none';
-            chatContainer.style.display = 'block';
+            chatContainer.style.display = 'block';  // chat-container 다시 보이기
         }
     });
 
-    // 닫기 버튼 클릭 시 다시 chat-container를 보여줍니다.
-    document.getElementById('closeRefList').addEventListener('click', function() {
-        document.querySelector('.file-container').style.display = 'none';
-        document.querySelector('.chat-container').style.display = 'block'; // chat-container 보이기
-    });
+    // 카드를 동적으로 생성
+    function showSubcategoriesAndFiles(filesBySubcategory) {
+        const subcategoryCardsContainer = document.getElementById('subcategoryContainer');
+        subcategoryCardsContainer.innerHTML = ''; // 기존 카드 비우기
+
+        // 각 중분류에 맞는 카드를 생성하고 파일 리스트를 넣음
+        for (const subcategory in filesBySubcategory) {
+            const card = document.createElement('div');
+            card.classList.add('col-md-4', 'subcategory-container');
+
+            const cardContent = `
+                <div class="card mb-4">
+                    <div class="h2">
+                        <h2>${subcategory}</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="file-list">
+                            ${filesBySubcategory[subcategory].map(file => `<li><a href="${file.url}" target="_blank">${file.name}</a></li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            card.innerHTML = cardContent;
+            subcategoryCardsContainer.appendChild(card);
+        }
+    }
+
+    // 파일 목록을 탭에 맞게 필터링해서 카드에 표시
+    function filterAndShowCardsByCategory(categoryFiles) {
+        const filesBySubcategory = categoryFiles.reduce((acc, file) => {
+            acc[file.subcategory] = acc[file.subcategory] || [];
+            acc[file.subcategory].push(file);
+            return acc;
+        }, {});
+
+        showSubcategoriesAndFiles(filesBySubcategory);
+    }
+
 
     newChatButton.addEventListener('click', () => {
         // 새로운 대화 시작하기 기능 구현
         console.log('새로운 대화 시작하기 버튼 클릭됨');
         // 필요한 기능 구현 추가
         startNewChat();
+
+        if (document.body.classList.contains('hide-list')) {
+            document.body.classList.remove('hide-list');
+        }
+        // chat-container가 보이도록 설정
+        fileContainer.style.display = 'none';
+        chatContainer.style.display = 'block';
     });
 
     const startNewChat = async () => {
@@ -90,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/thread/new');
             const data = await response.json();
             const newThreadId = data.thread_id;
-            
+
             // Increment the chat index and update the title
             const chatTitle = `Hansol HR BOT${chatIndex++}`;
 
@@ -104,35 +177,35 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="fa-regular fa-trash-can delete-button"></i>
                 </div>
             `;
-    
+
             const deleteButton = newChatItem.querySelector('.delete-button');
             deleteButton.addEventListener('click', async (e) => {
-                e.preventDefault(); 
+                e.preventDefault();
                 e.stopPropagation();
 
                 const confirmDelete = confirm('이 채팅 스레드를 삭제하시겠습니까?');
                 if (!confirmDelete) return;
 
                 try {
-                    const deleteResponse = await fetch(`/api/chat/delete`, { 
+                    const deleteResponse = await fetch(`/api/chat/delete`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ newThreadId }),  
+                        body: JSON.stringify({ newThreadId }),
                     });
 
                     if (!deleteResponse.ok) {
                         const errorText = await deleteResponse.text();
                         throw new Error(`Failed to delete thread: ${errorText}`);
-                    } else {                
+                    } else {
                         const chatMessages = document.getElementById(`chat-messages-${newThreadId}`);
                         if (chatMessages) {
                             chatMessages.remove();
                             console.log(`Messages for thread ${newThreadId} deleted successfully.`);
                         }
-                        
-                        newChatItem.remove(); 
+
+                        newChatItem.remove();
                         console.log(`Thread ${newThreadId} deleted successfully.`);
                     }
 
@@ -140,14 +213,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('Error while deleting the thread:', error);
                 }
             });
-    
+
             newChatItem.addEventListener('click', (e) => {
                 e.preventDefault();
                 loadThread(newThreadId);
             });
-    
+
             chatList.appendChild(newChatItem);
-    
+
             createChatMessages(newThreadId);
             switchToThread(newThreadId);
         } catch (error) {
@@ -177,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const sendMessage = () => {
         const message = userInput.value.trim();
-        
+        console.log('message:', message);
         if (message) {
             // '\n'을 '<br>'로 대체 (줄바꿈 표현)
             const formattedMessage = userInput.value.replace(/\n/g, '<br>');
@@ -209,17 +282,17 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify({ message, threadId }),
         })
-        .then(response => {
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder('utf-8');
-            let buffer = '';
-            let messageElement = loadingMessage;
-            const uniqueId = `${threadId}-${Math.random().toString(36).substring(2, 15)}`;
+            .then(response => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder('utf-8');
+                let buffer = '';
+                let messageElement = loadingMessage;
+                const uniqueId = `${threadId}-${Math.random().toString(36).substring(2, 15)}`;
 
-            return reader.read().then(function processText({ done, value }) {
-                if (done) {
-                    if (messageElement) {
-                        messageElement.innerHTML = `
+                return reader.read().then(function processText({ done, value }) {
+                    if (done) {
+                        if (messageElement) {
+                            messageElement.innerHTML = `
                         <div class="d-flex">
                             <img src="static/image/logo_test.png" class="align-self-start mr-2 chat-logo">
                             <div class="media-body text-left">
@@ -233,25 +306,25 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                         `;
-                        fetchFileReferences(messageElement, uniqueId); // 파일 참조 정보를 가져오는 함수 호출
-                    } else {
-                        messageElement = displayMessage('bot', buffer, threadId);
+                            fetchFileReferences(messageElement, uniqueId); // 파일 참조 정보를 가져오는 함수 호출
+                        } else {
+                            messageElement = displayMessage('bot', buffer, threadId);
+                        }
+
+                        // 응답이 완료된 후 입력 필드와 버튼을 활성화
+                        enableInputs();
+                        fetchChatTitle();
+                        //fetchFileReferences(messageElement); // 현재 메시지 요소를 전달
+                        return;
                     }
 
-                    // 응답이 완료된 후 입력 필드와 버튼을 활성화
-                    enableInputs();
-                    fetchChatTitle();
-                    //fetchFileReferences(messageElement); // 현재 메시지 요소를 전달
-                    return;
-                }
+                    buffer += decoder.decode(value, { stream: true });
 
-                buffer += decoder.decode(value, { stream: true });
+                    if (!messageElement) {
+                        messageElement = displayMessage('bot', '', threadId);
+                    }
 
-                if (!messageElement) {
-                    messageElement = displayMessage('bot', '', threadId);
-                }
-
-                messageElement.innerHTML = `
+                    messageElement.innerHTML = `
                 <div class="d-flex">
                     <img src="static/image/logo_test.png" class="align-self-start mr-2 chat-logo">
                     <div class="media-body text-left">
@@ -261,18 +334,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 `;
 
-                scrollToBottom(); // 메시지 추가 후 스크롤을 아래로 이동
-                return reader.read().then(processText);
-            });
-        })
-        .catch(error => {
-            loadingMessage.innerHTML = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
-            console.error('Error:', error);
+                    scrollToBottom(); // 메시지 추가 후 스크롤을 아래로 이동
+                    return reader.read().then(processText);
+                });
+            })
+            .catch(error => {
+                loadingMessage.innerHTML = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                console.error('Error:', error);
 
-            // 에러 발생 시에도 입력 필드와 버튼을 활성화
-            enableInputs();
-        });
-    };    
+                // 에러 발생 시에도 입력 필드와 버튼을 활성화
+                enableInputs();
+            });
+    };
 
     // API 호출하여 채팅방 타이틀을 가져오는 함수
     const fetchChatTitle = async () => {
@@ -284,7 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json(); // JSON 응답 파싱
             const chatTitle = data.chat_title; // 타이틀 추출
             console.log('채팅방 타이틀:', chatTitle);
-            
+
             if (chatTitle) {
                 // 채팅방 타이틀을 강제로 지정
                 setChatTitle(chatTitle);
@@ -299,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const setChatTitle = (title) => {
         const chatTitleElement = document.querySelector('.' + threadId)
         if (chatTitleElement) {
-            if(title)
+            if (title)
                 chatTitleElement.textContent = title; // 타이틀 설정
         }
     };
@@ -307,31 +380,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // fetchFileReferences 함수에서 messageElement를 사용하여 출처 정보를 올바른 위치에 표시
     function fetchFileReferences(messageElement, uniqueId) {
         fetch('/api/file-references')
-        .then(response => response.json())
-        .then(data => {
-            if (!messageElement) return; // 메시지 요소가 없으면 종료
+            .then(response => response.json())
+            .then(data => {
+                if (!messageElement) return; // 메시지 요소가 없으면 종료
 
-            console.log("data.file_references.length", data.file_references.length);
-            console.log("data.file_references", data.file_references);
-            const referenceBubble = document.getElementById(`referenceCard-${uniqueId}`);
-        
-            // 출처 파일이 있는지 확인하고 없으면 bubble 제거
-            if (data.file_references && data.file_references.length > 0) {
-                updateReferenceCard(data.file_references, messageElement, uniqueId); // 메시지 요소 참조를 전달하여 올바른 위치에 업데이트
-            } else {                
-                console.log("출처파일없음: ", referenceBubble);
-                if (referenceBubble) {
-                    referenceBubble.style.display = 'none'; // 숨기기
-                    setTimeout(() => {
-                        referenceBubble.remove(); // 일정 시간 후에 DOM에서 제거
-                        console.log('Reference bubble removed.');
-                    }, 100); // DOM 업데이트 후 제거
+                console.log("data.file_references.length", data.file_references.length);
+                console.log("data.file_references", data.file_references);
+                const referenceBubble = document.getElementById(`referenceCard-${uniqueId}`);
+
+                // 출처 파일이 있는지 확인하고 없으면 bubble 제거
+                if (data.file_references && data.file_references.length > 0) {
+                    updateReferenceCard(data.file_references, messageElement, uniqueId); // 메시지 요소 참조를 전달하여 올바른 위치에 업데이트
                 } else {
-                    console.log('Reference bubble not found.');
+                    console.log("출처파일없음: ");
+                    if (referenceBubble) {
+                        referenceBubble.style.display = 'none'; // 숨기기
+                        setTimeout(() => {
+                            referenceBubble.remove(); // 일정 시간 후에 DOM에서 제거
+                            console.log('Reference bubble removed.');
+                        }, 100); // DOM 업데이트 후 제거
+                    } else {
+                        console.log('Reference bubble not found.');
+                    }
                 }
-            }
-        })
-        .catch(error => console.error('Error fetching file references:', error));
+            })
+            .catch(error => console.error('Error fetching file references:', error));
     }
 
     // 출처 카드를 업데이트하는 함수
@@ -368,20 +441,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 파일 URL을 가져오는 함수
-    window.fetchFileUrl = function(fileName) {
+    window.fetchFileUrl = function (fileName) {
         fetch(`/api/get-file-url?fileName=${encodeURIComponent(fileName)}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log("URL : "+data);
-            if (data.url) {
-                window.open(data.url, '_blank'); // URL을 새 창에서 엽니다
-            } else {
-                console.error('URL not found for file:', fileName);
-            }
-        })
-        .catch(error => console.error('Error fetching URL for file:', error));
+            .then(response => response.json())
+            .then(data => {
+                console.log("URL : " + data.url);
+                if (data.url) {
+                    window.open(data.url, '_blank'); // URL을 새 창에서 엽니다
+                } else {
+                    console.error('URL not found for file:', fileName);
+                }
+            })
+            .catch(error => console.error('Error fetching URL for file:', error));
     }
-    
+
 
 
     const displayMessage = (sender, message, threadId, isLoading = false) => {
@@ -478,7 +551,7 @@ function disableInputs() {
 }
 
 // 입력 필드와 버튼 활성화 함수
-function enableInputs() {    
+function enableInputs() {
     userInput.value = '';
     sendButton.disabled = false;
     sendButton.classList.remove('disabled-button'); // 비활성화 스타일 클래스를 제거
@@ -490,7 +563,7 @@ function enableInputs() {
 
     chatInput.style.height = '60px'; // 초기 높이로 재설정
     userInput.style.height = '50px'; // 초기 높이로 재설정
-    
+
     userInput.focus();
 }
 
@@ -517,7 +590,7 @@ const displayLoadingMessage = (threadId) => {
 };
 
 function adjustTextareaHeight(textarea) {
-    textarea.style.height = 'auto'; 
+    textarea.style.height = 'auto';
     const padding = 10; // textarea와 chatInput에 적용할 패딩 값
     const maxHeight = 140; // textarea의 최대 높이
     const newHeight = textarea.scrollHeight - padding;
@@ -540,7 +613,7 @@ function adjustTextareaHeight(textarea) {
         textarea.style.height = maxHeight + 'px';
         textarea.style.overflowY = 'auto'; // 스크롤바 보이기
     } else {
-        textarea.style.height = (newHeight-padding) + 'px';
+        textarea.style.height = (newHeight - padding) + 'px';
         textarea.style.overflowY = 'hidden'; // 스크롤바 숨기기
     }
 
