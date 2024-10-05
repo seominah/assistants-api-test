@@ -73,9 +73,17 @@ def api_get_file_url():
     file_name = request.args.get('fileName')  # 요청에서 파일명 가져오기
     
     # 딕셔너리의 키를 순회하면서 파일명에 포함된 키를 찾음
-    for key in file_urls:
-        if key in file_name:  # 파일명에 키가 포함되는지 확인
-            return jsonify({'url': file_urls[key]})  # 해당 키의 URL 반환
+    # for key in file_urls:
+    #     if key in file_name:  # 파일명에 키가 포함되는지 확인
+    #         return jsonify({'url': file_urls[key]})  # 해당 키의 URL 반환
+        
+    # print(f"파일명으로 URL을 찾는 중: {file_name}")
+    # 리스트의 각 항목을 순회하며 파일명을 확인
+    for file in file_urls:
+        # print(f"Checking file: {file['name']}")  # 어떤 파일과 비교 중인지 출력
+        if file["name"].lower() in file_name.lower():  # 대소문자 구분 없이 비교
+            print(f"Found matching file: {file['name']} with URL: {file['url']}")
+            return jsonify({'url': file['url']})  # 해당 파일의 URL 반환        
 
     # 해당하는 URL을 찾지 못한 경우
     return jsonify({'error': 'URL not found'}), 404
