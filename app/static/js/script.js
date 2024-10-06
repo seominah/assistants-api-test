@@ -1,3 +1,6 @@
+/****************************************************************************************
+                            Event Listeners and Functions
+****************************************************************************************/
 document.addEventListener('DOMContentLoaded', () => {
     let threadId = null;
     let sessionId = document.getElementById('session-info')?.getAttribute('data-session-id');
@@ -12,10 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
         "기타": []
     };
 
+
     const chatContainer = document.querySelector('.chat-container');
     const fileContainer = document.querySelector('.file-container');
     const tabLinks = document.querySelectorAll('.nav-tabs .nav-link');
 
+    const faqContainer = document.querySelector('.faq-container');
     const chatMessagesContainer = document.getElementById('chatMessagesContainer');
     const referenceCardContainer = document.getElementById('referenceCardContainer');
     const fileReferencesList = document.getElementById('fileReferences');
@@ -30,11 +35,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const newChatButton = document.getElementById('newChat');
     const body = document.body; // 전체 body 요소 가져오기
 
+
     if (!chatMessagesContainer || !userInput || !sendButton || !chatList || !chatContainer || !fileContainer) {
         console.error('Required DOM elements are missing.');
         return;
     }
 
+    /*************************************************
+     * Event Listeners : 질문 예시
+    *************************************************/
+    document.querySelectorAll('.faq-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const faqText = card.querySelector('p').innerText;
+            const userInput = document.getElementById('userInput');
+            userInput.value = faqText;
+            sendMessage();
+        });
+    });
+
+
+    /*************************************************
+     * Event Listeners : 채팅 목록
+    *************************************************/
     chatListButton.addEventListener('click', () => {
         body.classList.toggle('hide-list');
 
@@ -43,6 +65,30 @@ document.addEventListener('DOMContentLoaded', () => {
         chatContainer.style.display = 'block';
     });
 
+
+    chatList.addEventListener('click', (e) => {
+        if (e.target && e.target.matches('#newChat')) {
+            startNewChat();
+        }
+    });
+
+    newChatButton.addEventListener('click', () => {
+        // 새로운 대화 시작하기 기능 구현
+        console.log('새로운 대화 시작하기 버튼 클릭됨');
+        // 필요한 기능 구현 추가
+        startNewChat();
+
+        if (document.body.classList.contains('hide-list')) {
+            document.body.classList.remove('hide-list');
+        }
+        // chat-container가 보이도록 설정
+        fileContainer.style.display = 'none';
+        chatContainer.style.display = 'block';
+    });
+
+    /*************************************************
+     * Event Listeners : 파일 목록
+    *************************************************/
     tabLinks.forEach(tab => {
         tab.addEventListener('click', function (event) {
             event.preventDefault(); // 기본 링크 동작 방지
@@ -104,6 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
     // 카드를 동적으로 생성
     function showSubcategoriesAndFiles(filesBySubcategory) {
         const subcategoryCardsContainer = document.getElementById('subcategoryContainer');
@@ -144,19 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    newChatButton.addEventListener('click', () => {
-        // 새로운 대화 시작하기 기능 구현
-        console.log('새로운 대화 시작하기 버튼 클릭됨');
-        // 필요한 기능 구현 추가
-        startNewChat();
-
-        if (document.body.classList.contains('hide-list')) {
-            document.body.classList.remove('hide-list');
-        }
-        // chat-container가 보이도록 설정
-        fileContainer.style.display = 'none';
-        chatContainer.style.display = 'block';
-    });
 
     const startNewChat = async () => {
         try {
@@ -223,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             createChatMessages(newThreadId);
             switchToThread(newThreadId);
+            toggleFaqVisibility();
         } catch (error) {
             console.error('Error:', error);
         }
@@ -260,16 +295,37 @@ document.addEventListener('DOMContentLoaded', () => {
             disableInputs();
 
             fetchMessageFromServer(message, threadId);
+            toggleFaqVisibility();
         }
-
-        // const chatTitle = document.querySelector('.' + threadId)
-        // let title = message
-
-        // if (title.length > 15)
-        //     title = title.slice(0, 15) + '...'
-
-        // chatTitle.textContent = title
     };
+
+    function toggleFaqVisibility() {
+        // chatMessagesContainer가 비어 있으면 FAQ 보이기, 비어 있지 않으면 숨기기
+        const messageContainer = document.querySelector('.chat-messages.active');
+        console.log('messageContainer:', messageContainer);
+        if (!messageContainer || messageContainer.innerHTML.trim() === '') {
+            faqContainer.classList.remove('hidden');
+        } else {
+            faqContainer.classList.add('hidden');
+        }
+    }
+
+    /*************************************************
+     * Event Listeners : 프롬프트
+    *************************************************/
+    sendButton.addEventListener('click', sendMessage);
+    userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // 기본 Enter 키의 줄바꿈을 막습니다.
+            sendMessage(); // 메시지를 전송합니다.
+        }
+    });
+    userInput.addEventListener('input', () => {
+        // input 이벤트는 모든 텍스트 변경을 감지함
+        if (userInput.value === '') {
+            chatInput.style.height = '60px'; // 값이 공백일 때만 높이 초기화
+        }
+    });
 
     const fetchMessageFromServer = (message, threadId) => {
         //const loadingMessage = displayMessage('bot', '로딩 중', threadId, true);
@@ -384,8 +440,6 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 if (!messageElement) return; // 메시지 요소가 없으면 종료
 
-                console.log("data.file_references.length", data.file_references.length);
-                console.log("data.file_references", data.file_references);
                 const referenceBubble = document.getElementById(`referenceCard-${uniqueId}`);
 
                 // 출처 파일이 있는지 확인하고 없으면 bubble 제거
@@ -514,24 +568,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    chatList.addEventListener('click', (e) => {
-        if (e.target && e.target.matches('#newChat')) {
-            startNewChat();
-        }
-    });
-
-    sendButton.addEventListener('click', sendMessage);
-    userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault(); // 기본 Enter 키의 줄바꿈을 막습니다.
-            sendMessage(); // 메시지를 전송합니다.
-        }
-    });
 
     // Initialize the first chat
     startNewChat();
 });
 
+
+/****************************************************************************************
+                            Helper Functions
+****************************************************************************************/
 // 스크롤 하단 이동 함수
 function scrollToBottom() {
     const chatMessagesContainer = document.getElementById('chatMessagesContainer');
