@@ -257,7 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             createChatMessages(newThreadId);
             switchToThread(newThreadId);
-            toggleFaqVisibility();
         } catch (error) {
             console.error('Error:', error);
         }
@@ -281,6 +280,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 child.style.display = 'none';
             }
         });
+        
+        toggleFaqVisibility();
     };
 
     const sendMessage = () => {

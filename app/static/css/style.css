@@ -649,7 +649,7 @@ label[for="nav-footer-toggle"] {
   transform: translate(-50%, -50%);
   /* 완벽한 중앙 배치를 위해 사용 */
   width: calc(100% - var(--navbar-width-min)) !important;
-  height: calc(40vh);
+  height: calc(60vh);
   margin: 0 auto;
   max-width: 1200px;
   padding: 20px;
