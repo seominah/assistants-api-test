@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HR 챗봇 어시스턴트</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -15,6 +15,7 @@
 
     <div id="nav-bar">
         <input id="nav-toggle" type="checkbox" checked />
+        <div id="overlay"></div>
         <div id="nav-header">
             <a id="nav-title" href="https://hansolpns-it.atlassian.net/wiki/spaces/HMS/overview" target="_blank">
                 <i class="fab fa-codepen"></i> HR Chatbot
@@ -45,10 +46,12 @@
         <div id="nav-footer">
             <div id="nav-footer-heading">
                 <div id="nav-footer-avatar">
-                    <img src="{{ url_for('static', filename='image/icon-chat-gpt.png') }}" />
+                    <a href="https://chatgpt.com/" target="_blank">
+                        <img src="{{ url_for('static', filename='image/icon-chat-gpt.png') }}" />
+                    </a>
                 </div>
                 <div id="nav-footer-titlebox">
-                    <a id="nav-footer-title" href="https://codepen.io/uahnbu/pens/public" target="_blank">GPT 4o</a>
+                    <a id="nav-footer-title" href="https://chatgpt.com/" target="_blank">GPT 4o</a>
                     <span id="nav-footer-subtitle">Version 1.0.0</span>
                 </div>
                 <label for="nav-footer-toggle">
@@ -67,19 +70,10 @@
         <!-- Left Chat List -->
         <div class="col-md-3 p-0 chat-list-container">
             <div class="card">
-                <!-- 상단 버튼 컨테이너 -->
-                <div class="button-container d-flex justify-content-between align-items-center">
-                    <!-- 새로운 대화 시작하기 버튼 -->
-                    <!-- <button type="button" class="btn btn-light" id="newChat">
-                        <i class="fa-solid fa-plus"></i> New Chat
-                    </button> -->
-
+                <div class="chat-list-header d-flex justify-content-between align-items-center">
                     <span style="font-size: 15px;">Chat List</span>
                 </div>
                 <div class="list-group" id="chat-list">
-                    <!-- <button type="button" class="list-group-item list-group-item-action" id="newChat">
-                        <i class="fas fa-plus mr-2"></i> 새로운 대화 시작하기
-                    </button> -->
                     <!-- 대화 목록이 이곳에 추가됩니다 -->
                 </div>
             </div>
@@ -91,6 +85,43 @@
                 <div class="card-header d-flex justify-content-start align-items-center">
                     <!-- 챗봇 타이틀 -->
                     <span style="font-size: 15px;">HansolPNS HR 챗봇</span>
+                </div>
+                <!-- 질문 예시 -->
+                <div class="faq-container" id="fqaContainer">
+                    <div class="faq-header">
+                        <span>답변 가능한 범위는 <i class="fas fa-book"></i><strong>출처 파일</strong> 메뉴에서 확인하세요.</span>
+                    </div>
+
+                    <div class="faq-card-wrapper">
+                        <div class="faq-card">
+                            <i class="fas fa-plane"></i>
+                            <p>2024년 지정연차</p>
+                        </div>
+                        <div class="faq-card">
+                            <i class="fas fa-car"></i>
+                            <p>법인차량 이용하려면 어떻게 해야해?</p>
+                        </div>
+                        <div class="faq-card">
+                            <i class="fas fa-circle-dollar-to-slot"></i>
+                            <p>나의 정확한 퇴직금을 계산하고싶어</p>
+                        </div>
+                        <div class="faq-card">
+                            <i class="fas fa-square-parking"></i>
+                            <p>정기주차랑 방문주차 관련 사항을 알려줘</p>
+                        </div>
+                        <div class="faq-card">
+                            <i class="fas fa-house-medical"></i>
+                            <p>바뀐 의료비 지원제도에 대해 자세히 설명해줘</p>
+                        </div>
+                        <div class="faq-card">
+                            <i class="fa-solid fa-people-group"></i>
+                            <p>인사팀 담당자</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-footer">
+                        <span><span style="font-size: 2em;">💡</span>질문을 자세하게 할 수록 답변 퀄리티가 높아집니다.</span>
+                    </div>
                 </div>
                 <div class="card-body" id="chatMessagesContainer">
                     <!-- Chat messages will appear here -->

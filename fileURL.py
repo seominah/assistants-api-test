@@ -3,7 +3,7 @@ import json
 # 딕셔너리 생성
 file_urls = [
     {
-        "name": "지정 연차",
+        "name": "2024년 지정 연차",
         "url": "https://echo.hansol.com/egate50/kr/eip/home/home.nsf/openpage?readform&url=%2Fegate50%2Fkr%2Feip%2Fbbs%2Fdb%2FB200512030119173311583.nsf%2Fmain%2F0C36937ECA7A036C49258AA20000A8B3%3Fopendocument%26vn%3Dmain%26tab%3Dfm_pt_content%26isundock%3D1",
         "category": "공지사항",  # 대분류
         "subcategory": "일반공지",  # 중분류
@@ -101,7 +101,7 @@ file_urls = [
         "number": 2,
     },
     {
-        "name": "직급체계",
+        "name": "직급체계 및 승격제도",
         "url": "https://hansolpns-it.atlassian.net/wiki/x/A4IyD",
         "category": "지침.가이드",
         "subcategory": "인사지침",
@@ -129,70 +129,70 @@ file_urls = [
         "number": 6,
     },
     {
-        "name": "퇴직연금",
+        "name": "퇴직연금 제도",
         "url": "https://hansolpns-it.atlassian.net/wiki/x/n4EpD",
         "category": "지침.가이드",
         "subcategory": "인사지침",
         "number": 7,
     },
     {
-        "name": "근태",
+        "name": "근태 관련 지침",
         "url": "https://hansolpns-it.atlassian.net/wiki/x/tgMsD",
         "category": "지침.가이드",
         "subcategory": "인사지침",
         "number": 8,
     },
     {
-        "name": "증명서",
+        "name": "증명서 발급 가이드",
         "url": "https://hansolpns-it.atlassian.net/wiki/x/9QMsD",
         "category": "지침.가이드",
         "subcategory": "인사지침",
         "number": 10,
     },
     {
-        "name": "동호회",
+        "name": "동호회 운영지침",
         "url": "https://hansolpns-it.atlassian.net/wiki/x/3QIwD",
         "category": "지침.가이드",
         "subcategory": "복리후생지침",
         "number": 1,
     },
     {
-        "name": "프로젝트",
+        "name": "프로젝트 포인트",
         "url": "https://hansolpns-it.atlassian.net/wiki/x/xQMwD",
         "category": "지침.가이드",
         "subcategory": "복리후생지침",
         "number": 2,
     },
     {
-        "name": "복지몰",
+        "name": "복지몰 운영-베네피아",
         "url": "https://hansolpns-it.atlassian.net/wiki/x/JgQsD",
         "category": "지침.가이드",
         "subcategory": "복리후생지침",
         "number": 3,
     },
     {
-        "name": "의료비",
+        "name": "의료비 지원제도",
         "url": "https://hansolpns-it.atlassian.net/wiki/x/NgEcGw",
         "category": "지침.가이드",
         "subcategory": "복리후생지침",
         "number": 4,
     },
     {
-        "name": "학자금",
+        "name": "학자금 지원제도",
         "url": "https://hansolpns-it.atlassian.net/wiki/x/U4BsHw",
         "category": "지침.가이드",
         "subcategory": "복리후생지침",
         "number": 5,
     },
     {
-        "name": "경조금",
+        "name": "경조금 지원제도",
         "url": "https://hansolpns-it.atlassian.net/wiki/x/BgJpI",
         "category": "지침.가이드",
         "subcategory": "복리후생지침",
         "number": 6,
     },
     {
-        "name": "건강검진",
+        "name": "건강검진 지원제도",
         "url": "https://hansolpns-it.atlassian.net/wiki/x/hwCRI",
         "category": "지침.가이드",
         "subcategory": "복리후생지침",
